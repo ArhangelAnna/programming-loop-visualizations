@@ -8,8 +8,6 @@
 </style>
 </head>
 <body><main class="app">
-<h1>Сначала проверить или сначала выполнить?</h1>
-<p class="lead">Сравни <strong>while</strong> и <strong>do while</strong> на одной задаче. Нажимай «Следующий шаг» или запусти анимацию — и следи за условием, значением <code>x</code> и консолью.</p>
 <div class="panel">
 <div class="toolbar"><span class="label">Начальное значение:</span><select id="start"><option value="10">x = 10 — условие сразу ложно</option><option value="2">x = 2 — условие сначала истинно</option><option value="4">x = 4 — одна итерация в обоих</option></select><span class="label" style="margin-left:auto">Язык:</span><div class="seg" id="langs"><button class="active" data-lang="cs" type="button">C#</button><button data-lang="cpp" type="button">C++</button></div></div>
 <div class="grid">
@@ -18,7 +16,6 @@
 </div>
 <div class="controls"><button id="prev" type="button">← Назад</button><button class="primary" id="next" type="button">Следующий шаг →</button><button id="auto" type="button">▶ Авто</button><button id="reset" type="button">↺ Сначала</button><span class="counter" id="progress"></span></div>
 <div class="note" id="conclusion">Нажми «Следующий шаг». Обрати внимание: когда <code>x = 10</code>, проверка <code>10 &lt; 5</code> ложна сразу.</div>
-<p class="foot">Визуализация показывает фрагменты программ, а не полные программы с <code>Main</code> / <code>main</code>. В обоих примерах после вывода выполняется <code>x++</code>. Обозначение «Выполнено тел» — количество выполнений блока команд цикла.</p>
 </div></main>
 <script>
 'use strict';
