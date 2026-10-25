@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Перебор массива циклом for — интерактивная модель</title>
+<style>
+  :root{--ink:#19304c;--muted:#56708c;--border:#dce5f1;--blue:#286bd9;--light:#eaf3ff;--green:#08795c;--softgreen:#eaf9f1;--bg:#f5f8fd;--white:#fff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);font:16px/1.48 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+  .wrap{max-width:1000px;margin:0 auto;padding:22px}
+  .header{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:17px}
+  h1{font-size:clamp(24px,3.6vw,34px);margin:0;font-weight:750;line-height:1.16}
+  .subtitle{font-size:14px;color:var(--muted);margin:7px 0 0}
+  .seg{border:1px solid var(--border);border-radius:12px;background:#fff;padding:4px;display:inline-flex;gap:3px}
+  .seg button{border:0;border-radius:9px;padding:10px 17px;background:transparent;color:var(--ink);cursor:pointer;font-weight:700;font-size:14px}
+  .seg button.active{background:var(--blue);color:#fff}
+  .layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:16px}
+  .panel{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 4px 18px #1a3e6710;overflow:hidden}
+  .panelHead{font-size:13px;font-weight:750;letter-spacing:.035em;text-transform:uppercase;color:var(--muted);padding:13px 18px;border-bottom:1px solid var(--border)}
+  .code{padding:12px 10px;background:#1d2b42;color:#e2ebfb;font:15px/1.85 Consolas,"Courier New",monospace;min-height:304px;overflow:auto}
+  .codeLine{display:flex;gap:12px;align-items:baseline;white-space:pre;width:max-content;min-width:100%;padding:2px 9px;border-radius:7px;border-left:3px solid transparent}
+  .codeLine.active{background:#355577;border-left-color:#7ac8ff}
+  .ln{min-width:13px;color:#99b0c9;text-align:right;user-select:none}
+  .kw{color:#93c5fd}.num{color:#f9c784}.name{color:#b9e1d3}.obj{color:#f6c4fa}
+  .state{padding:16px 18px 17px;display:flex;flex-direction:column;gap:15px}
+  .smallHeading{font-size:13px;color:var(--muted);font-weight:730}
+  .arrayRow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:7px}
+  .arrayEl{text-align:center;border:2px solid var(--border);border-radius:11px;background:#f7faff;padding:8px 1px 12px;transition:background .16s,border-color .16s}
+  .arrayEl.active{border-color:var(--blue);background:#e8f2ff;box-shadow:0 0 0 2px #9bc7ff44}
+  .arrayEl .index{color:var(--muted);font:12px Consolas,monospace;margin-bottom:5px}
+  .arrayEl .val{font-weight:780;font-size:26px}
+  .kvgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+  .kv{border-radius:11px;background:#f2f6fc;padding:10px 11px;min-height:78px}
+  .kv small{display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
+  .kv strong{display:block;font-size:23px;line-height:1.2;overflow-wrap:anywhere}
+  .kv.total{background:var(--softgreen)}.kv.total strong{color:var(--green)}
+  .console{border:1px solid var(--border);background:#f6f8fc;border-radius:9px;padding:10px 12px;min-height:45px;font:15px Consolas,monospace}
+  .console .blank{color:#8b9aab;font-family:system-ui,sans-serif;font-size:13px}
+  .explain{margin:16px 0 11px;border-radius:12px;background:#eaf3ff;border:1px solid #c6ddff;padding:14px 17px;min-height:90px}
+  .explain strong{display:block;color:#174f9a;margin-bottom:4px}
+  .explain p{margin:0;line-height:1.5}
+  .controls{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}
+  .btns{display:flex;gap:8px;flex-wrap:wrap}
+  button{font-family:inherit}
+  .ctrl{padding:10px 14px;font-size:14px;font-weight:650;color:var(--ink);background:#fff;border:1px solid #cbd7e6;border-radius:10px;cursor:pointer}
+  .ctrl.primary{background:#286bd9;color:white;border-color:#286bd9}
+  .ctrl:disabled{opacity:.45;cursor:default}
+  .progress{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .progressbar{height:7px;background:#e3eaf6;border-radius:50px;overflow:hidden;margin:12px 0 4px}
+  .fill{height:100%;width:0;background:#286bd9;transition:width .2s}
+  .note{font-size:13px;color:var(--muted);margin:11px 2px 1px}
+  .note b{color:var(--ink)}
+  @media(max-width:730px){.layout{grid-template-columns:1fr}.code{min-height:auto}.wrap{padding:12px}.header{align-items:flex-start}.state{padding:15px}.panelHead{padding:10px 15px} h1{font-size:25px}}
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="header">
+  <div><h1>Перебор массива с помощью <span style="color:#286bd9">for</span></h1><p class="subtitle">Наблюдай за индексом, текущим элементом и накоплением суммы</p></div>
+  <div class="seg" role="group" aria-label="Выбор языка"><button type="button" data-lang="cpp" class="active" aria-pressed="true">C++</button><button type="button" data-lang="csharp" aria-pressed="false">C#</button></div>
+ </div>
+ <div class="layout">
+  <section class="panel" aria-label="Код программы"><div class="panelHead">Фрагмент программы</div><div class="code" id="code"></div></section>
+  <section class="panel" aria-label="Состояние программы"><div class="panelHead">Что происходит в памяти</div>
+   <div class="state"><div><div class="smallHeading">Массив numbers (4 элемента)</div><div class="arrayRow" id="array"></div></div>
+   <div class="kvgrid">
+    <div class="kv"><small>Индекс i</small><strong id="index">—</strong></div>
+    <div class="kv"><small>Условие</small><strong id="condition">—</strong></div>
+    <div class="kv total"><small>Сумма sum</small><strong id="sum">0</strong></div>
+   </div>
+   <div><div class="smallHeading">Вывод в консоль</div><div class="console" id="output" aria-live="polite"><span class="blank">Пока ничего</span></div></div>
+  </div></section>
+ </div>
+ <div class="explain" aria-live="polite"><strong id="phase">Подготовка</strong><p id="message"></p></div>
+ <div class="controls">
+  <div class="btns"><button id="prev" class="ctrl" type="button">← Назад</button><button id="next" class="ctrl primary" type="button">Дальше →</button><button id="play" class="ctrl" type="button">▶ Авто</button><button id="reset" class="ctrl" type="button">↺ Сначала</button></div>
+  <span id="progressText" class="progress">Шаг 1</span>
+ </div>
+ <div class="progressbar" aria-hidden="true"><div id="progressFill" class="fill"></div></div>
+ <p class="note"><b>Обрати внимание:</b> когда <code>i = 4</code>, условие <code>i &lt; 4</code> (C++) или <code>i &lt; numbers.Length</code> (C#) становится ложным. Элемент <code>numbers[4]</code> не читается.</p>
+</div>
+<script>
+(function () {
+ 'use strict';
+ const nums = [4, 7, 2, 5];
+ const snippets = {
+  cpp: [
+   ['arr','int numbers[4] = {4, 7, 2, 5};'],
+   ['sum','int sum = 0;'],
+   ['for','for (int i = 0; i < 4; i++) {'],
+   ['body','    sum += numbers[i];'],
+   ['end','}'],
+   ['out','cout << sum;']
+  ],
+  csharp: [
+   ['arr','int[] numbers = {4, 7, 2, 5};'],
+   ['sum','int sum = 0;'],
+   ['for','for (int i = 0; i < numbers.Length; i++) {'],
+   ['body','    sum += numbers[i];'],
+   ['end','}'],
+   ['out','Console.WriteLine(sum);']
+  ]
+ };
+ let lang='cpp', step=0, timer=null;
+ const stages=[
+  {kind:'arr',i:null,sum:0,cond:null,out:false,title:'Массив создан',message:'Массив numbers содержит четыре элемента: 4, 7, 2, 5. Их индексы: 0, 1, 2, 3.'},
+  {kind:'sum',i:null,sum:0,cond:null,out:false,title:'Создаём переменную суммы',message:'Переменная sum начинается с 0. В неё будем добавлять элементы массива один за другим.'}
+ ];
+ let sum=0;
+ for(let i=0;i<nums.length;i++) {
+  stages.push({kind:'for',i,sum,cond:true,out:false,title:'Проверка условия',message:'i = '+i+'. Условие '+i+' < 4 истинно — можно обратиться к numbers['+i+'].'});
+  sum+=nums[i];
+  stages.push({kind:'body',i,sum,cond:true,out:false,title:'Обрабатываем элемент',message:'Элемент numbers['+i+'] равен '+nums[i]+'. Прибавляем его к сумме: теперь sum = '+sum+'.'});
+  stages.push({kind:'for',i:i+1,sum,cond:null,out:false,title:'Изменяем счётчик',message:'Команда i++ увеличивает индекс до '+(i+1)+'. Следующий шаг — снова проверить условие.'});
+ }
+ stages.push({kind:'for',i:4,sum,cond:false,out:false,title:'Завершение цикла',message:'i = 4. Условие 4 < 4 ложно. Тело цикла не выполняется — обращения к numbers[4] нет.'});
+ stages.push({kind:'out',i:4,sum,cond:false,out:true,title:'Готово!',message:'Цикл выполнил четыре итерации. Сумма элементов: 4 + 7 + 2 + 5 = 18. Программа выводит 18.'});
+ function esc(str){return str.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');}
+ function paintCode() {
+  const code=document.getElementById('code');
+  code.innerHTML=snippets[lang].map(([key,s],n)=>'<div class="codeLine'+(stages[step].kind===key?' active':'')+'" data-code="'+key+'"><span class="ln">'+(n+1)+'</span><span>'+esc(s)+'</span></div>').join('');
+ }
+ function paint() {
+  const s=stages[step];
+  paintCode();
+  document.getElementById('array').innerHTML=nums.map((v,i)=>'<div class="arrayEl'+(s.i===i&&s.kind!=='arr'&&s.kind!=='sum'?' active':'')+'"><div class="index">['+i+']</div><div class="val">'+v+'</div></div>').join('');
+  document.getElementById('index').textContent=s.i===null?'—':String(s.i);
+  const c=document.getElementById('condition');c.textContent=s.cond===null?'—':String(s.cond);c.style.color=s.cond===true?'#08795c':s.cond===false?'#bb4141':'';
+  document.getElementById('sum').textContent=String(s.sum);
+  document.getElementById('output').innerHTML=s.out?String(s.sum):'<span class="blank">Пока ничего</span>';
+  document.getElementById('phase').textContent=s.title;
+  document.getElementById('message').textContent=s.message;
+  document.getElementById('progressText').textContent='Шаг '+(step+1)+' из '+stages.length;
+  document.getElementById('progressFill').style.width=(((step+1)/stages.length)*100)+'%';
+  document.getElementById('prev').disabled=step===0;
+  document.getElementById('next').disabled=step===stages.length-1;
+ }
+ function pause(){if(timer!==null){clearInterval(timer);timer=null;}document.getElementById('play').textContent='▶ Авто';}
+ document.getElementById('prev').addEventListener('click',()=>{pause();step=Math.max(0,step-1);paint();});
+ document.getElementById('next').addEventListener('click',()=>{pause();step=Math.min(stages.length-1,step+1);paint();});
+ document.getElementById('reset').addEventListener('click',()=>{pause();step=0;paint();});
+ document.getElementById('play').addEventListener('click',()=>{if(timer!==null){pause();return;}if(step===stages.length-1)step=0;document.getElementById('play').textContent='⏸ Пауза';paint();timer=setInterval(()=>{if(step<stages.length-1){step++;paint();}else pause();},1350);});
+ document.querySelectorAll('[data-lang]').forEach(btn=>btn.addEventListener('click',()=>{lang=btn.getAttribute('data-lang');document.querySelectorAll('[data-lang]').forEach(b=>{const active=b===btn;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false');});paint();}));
+ paint();
+})();
+</script>
+</body>
+</html>
