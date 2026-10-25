@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Массивы: индексы и элементы — интерактивная модель</title>
+<style>
+:root { color-scheme:light; --bg:#f7f9fc; --card:#fff; --ink:#16233b; --muted:#52627b; --line:#dce4ee; --blue:#2762d4; --pale:#eaf1ff; --green:#166f4c; --greenbg:#eaf8f0; --red:#a5323f; --redbg:#fff0f1; --shadow:0 9px 28px rgba(20,40,75,.07) }
+*{box-sizing:border-box} body{margin:0; padding:16px; background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif; color:var(--ink);line-height:1.45}
+.wrap{max-width:850px;margin:auto}.surface{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:19px;margin-bottom:14px;box-shadow:var(--shadow)}
+h1{font-size:clamp(19px,3vw,25px);margin:0 0 5px;font-weight:750}h2{font-size:17px;margin:0 0 10px}p{margin:6px 0;color:var(--muted)}.intro{font-size:14px}.eyebrow{color:var(--blue);font-weight:750;letter-spacing:.05em;text-transform:uppercase;font-size:11px;margin-bottom:5px}
+.toolbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}.choice{display:flex;gap:6px;flex-wrap:wrap}button{font:inherit;cursor:pointer;background:#fff;color:var(--ink);border:1px solid #bdcadc;border-radius:9px;padding:9px 12px;font-weight:650;transition:background .15s,border-color .15s}button:hover{background:#f0f6ff;border-color:var(--blue)}button:focus-visible,input:focus-visible{outline:3px solid #8ab7ff;outline-offset:2px}button[aria-pressed="true"],.primary{background:var(--blue);color:white;border-color:var(--blue)}button[aria-pressed="true"]:hover,.primary:hover{background:#164cae;color:white}.small{padding:7px 11px;font-size:13px}.legend{font-size:13px;color:var(--muted)}
+.code{background:#18263b;color:#f2f6fb;border-radius:11px;padding:14px 16px;overflow:auto;white-space:pre;font-size:13.5px;line-height:1.65;font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;margin-top:10px}.code .keyword{color:#80b4ff}.code .nums{color:#ffcc81}.code .prop{color:#92e4ce}.code .comment{color:#a9b8c7}
+.arraywrap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px}.cellbtn{padding:0;min-width:0;border:none;background:transparent;border-radius:12px}.cellbtn:hover,.cellbtn[aria-pressed="true"],.cellbtn[aria-pressed="true"]:hover{background:transparent;color:var(--ink);border:none}.idx{display:block;color:var(--muted);font:650 13px ui-monospace,SFMono-Regular,Consolas,monospace;margin-bottom:7px}.val{display:flex;justify-content:center;align-items:center;height:77px;border:2px solid var(--line);border-radius:11px;background:#f6f9ff;font:750 clamp(24px,4.5vw,36px) ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--ink)}.cellbtn.active .val{background:#e6f0ff;border-color:var(--blue);box-shadow:0 0 0 3px rgba(39,98,212,.13)}.cellbtn.active .idx{color:var(--blue)}.cellbtn:focus-visible{outline:3px solid #8ab7ff;outline-offset:4px}.tiprow{margin-top:10px;color:var(--muted);font-size:13px}.indexbox{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:13px 0}.indexbox b{font-size:13px;margin-right:6px}.indexbox button{min-width:40px}
+.actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:13px 0}.actions label{font-weight:700;font-size:13px}input[type="number"]{max-width:115px;padding:9px 10px;border:1px solid #bdcadc;border-radius:9px;font-size:15px} .result{border-radius:11px;padding:12px 15px;background:var(--greenbg);border:1px solid #bde8d1;color:var(--green);font-weight:600;min-height:56px} .result.warn{background:var(--redbg);border-color:#f1bdc2;color:var(--red)}.result.neutral{background:var(--pale);border-color:#c9dcfc;color:#264e91}.result code{font-family:ui-monospace,Consolas,monospace}.explain{margin-top:10px;font-size:14px;color:var(--muted)}.footer{font-size:12px;color:var(--muted);margin:0 3px 8px}
+@media (max-width:520px){body{padding:8px}.surface{padding:13px}.arraywrap{gap:6px}.val{height:60px}.indexbox{gap:5px}.indexbox button{min-width:36px;padding:8px}.code{font-size:12px}.toolbar{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="surface">
+ <div class="eyebrow">Интерактивная модель · Массивы</div>
+ <h1>Индекс — это место, значение — это содержимое</h1>
+ <p class="intro">Нажми на ячейку массива или выбери индекс. Посмотри, какой элемент находится по этому индексу. Затем попробуй изменить значение элемента.</p>
+ <div class="toolbar" style="margin-top:13px"><strong>Выбери язык примера</strong><div class="choice" role="group" aria-label="Язык программирования"><button type="button" id="cpp" class="small" aria-pressed="false">C++</button><button type="button" id="cs" class="small" aria-pressed="true">C#</button></div></div>
+ <div class="code" id="declaration" aria-label="Создание массива">int[] grades = { 5, 4, 5, 3 };</div>
+</section>
+<section class="surface">
+ <div class="toolbar"><h2 style="margin:0">Массив <code>grades</code></h2><div class="legend">Размер = <strong>4</strong> · индексы 0–3</div></div>
+ <div class="arraywrap" id="cells" aria-label="Элементы массива"></div>
+ <div class="tiprow">Цифра <strong>над ячейкой</strong> — индекс. Крупное число <strong>внутри</strong> — значение элемента.</div>
+ <div class="indexbox" id="indexbuttons" role="group" aria-label="Выбор индекса"><b>Выбери индекс:</b></div>
+ <div class="actions">
+  <button class="primary" id="read" type="button">Прочитать элемент</button>
+  <label for="newvalue">Новое значение:</label><input id="newvalue" type="number" value="9" min="-9999" max="9999" step="1" aria-label="Новое значение">
+  <button type="button" id="write">Изменить элемент</button>
+  <button type="button" id="reset">Сбросить</button>
+ </div>
+ <div class="code" id="actioncode" aria-label="Операция с элементом">Console.WriteLine(grades[0]);</div>
+ <div class="result neutral" id="result" role="status" aria-live="polite">Выбран индекс 0. Нажми «Прочитать элемент».</div>
+ <p class="explain" id="explain">Первый элемент расположен под индексом 0, а не 1.</p>
+</section>
+<div class="footer">Это визуальная модель работы массивов, а не запуск компилятора. Доступ к несуществующему индексу в C# приводит к исключению, а для обычного массива C++ — к неопределённому поведению.</div>
+</div>
+<script>
+(function(){
+ 'use strict';
+ var initial=[5,4,5,3], values=initial.slice(), selected=0,lang='cs',last='read';
+ var $=function(id){return document.getElementById(id)};
+ var cells=$('cells'),buttons=$('indexbuttons');
+ function valid(){return selected>=0 && selected<values.length;}
+ function setLanguage(l){lang=l;$('cpp').setAttribute('aria-pressed',String(l==='cpp'));$('cs').setAttribute('aria-pressed',String(l==='cs'));refresh();}
+ function syntax(){
+  $('declaration').textContent=(lang==='cpp'?'int grades[4] = { 5, 4, 5, 3 };':'int[] grades = { 5, 4, 5, 3 };');
+  if(last==='write'){$('actioncode').textContent='grades['+selected+'] = '+$('newvalue').value+';';}
+  else{$('actioncode').textContent=(lang==='cpp'?'cout << grades['+selected+'];':'Console.WriteLine(grades['+selected+']);');}
+ }
+ function drawCells(){cells.innerHTML=''; values.forEach(function(v,i){var b=document.createElement('button');b.type='button';b.className='cellbtn'+(selected===i?' active':'');b.setAttribute('aria-label','Индекс '+i+', значение '+v);b.setAttribute('aria-pressed',String(selected===i));var x=document.createElement('span');x.className='idx';x.textContent='['+i+']';var y=document.createElement('span');y.className='val';y.textContent=v;b.appendChild(x);b.appendChild(y);b.addEventListener('click',function(){select(i)});cells.appendChild(b)});}
+ function drawChoices(){Array.from(buttons.querySelectorAll('button')).forEach(function(b){b.setAttribute('aria-pressed',String(Number(b.dataset.idx)===selected));});}
+ function refresh(){drawCells();drawChoices();syntax();}
+ function note(msg,cls,detail){var r=$('result');r.className='result '+(cls||'neutral');r.textContent=msg;$('explain').textContent=detail||'';}
+ function select(i){selected=i;last='read';refresh(); if(valid())note('Индекс '+i+' выбран. Теперь прочитай или измени элемент.','neutral','Индекс '+i+' указывает на значение '+values[i]+'.');else note('Индекс '+i+' не существует в массиве из '+values.length+' элементов.','warn','Допустимые индексы: от 0 до '+(values.length-1)+'. Не пытайся читать такой элемент в реальной программе.');}
+ function invalidNote(){note('Нельзя безопасно обратиться к grades['+selected+'].','warn', lang==='cs'?'В C# будет исключение IndexOutOfRangeException.':'В C++ обращение за границы обычного массива приводит к неопределённому поведению.');}
+ [-1,0,1,2,3,4].forEach(function(i){var b=document.createElement('button');b.type='button';b.className='small';b.dataset.idx=String(i);b.textContent=String(i);b.addEventListener('click',function(){select(i)});buttons.appendChild(b)});
+ $('cpp').addEventListener('click',function(){setLanguage('cpp')});$('cs').addEventListener('click',function(){setLanguage('cs')});
+ $('read').addEventListener('click',function(){last='read';syntax();if(!valid()){invalidNote();return;}note('Значение grades['+selected+'] равно '+values[selected]+'.','', 'Мы обратились к ячейке по индексу и прочитали её текущее значение.');});
+ $('write').addEventListener('click',function(){last='write';syntax();if(!valid()){invalidNote();return;}var value=Number($('newvalue').value);if($('newvalue').value.trim()==='' || !Number.isInteger(value) || !Number.isSafeInteger(value) || value < -9999 || value > 9999){note('Введи целое число от -9999 до 9999.','warn','Для изменения элемента нужно задать новое допустимое значение.');return;}var old=values[selected];values[selected]=value;refresh();note('grades['+selected+']: '+old+' → '+value,'','Мы изменили значение существующего элемента. Индекс и размер массива остались прежними.');});
+ $('reset').addEventListener('click',function(){values=initial.slice();selected=0;last='read';$('newvalue').value='9';refresh();note('Массив восстановлен: 5, 4, 5, 3.','neutral','Можешь снова выбрать индекс, прочитать или изменить значение.');});
+ $('newvalue').addEventListener('input',function(){if(last==='write')syntax()});
+ refresh();
+})();
+</script>
+</body>
+</html>
