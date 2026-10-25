@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>for и foreach — перебор элементов массива</title>
+<style>
+:root{--ink:#19304c;--muted:#56708c;--border:#dce5f1;--blue:#286bd9;--green:#08795c;--bg:#f5f8fd;--dark:#1d2b42}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:16px/1.48 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+.wrap{max-width:1040px;margin:0 auto;padding:20px}.head{display:flex;justify-content:space-between;align-items:start;gap:16px;flex-wrap:wrap;margin-bottom:15px}h1{font-size:clamp(23px,3.5vw,33px);line-height:1.19;margin:0}.sub{font-size:14px;color:var(--muted);margin:6px 0 0}
+.switches{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px}.seg{display:inline-flex;gap:3px;border:1px solid var(--border);background:white;border-radius:11px;padding:4px}.seg button{border:0;background:transparent;border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer;font-weight:650;color:var(--ink)}.seg button.active{background:var(--blue);color:white}.seg button:focus-visible,.ctrl:focus-visible{outline:3px solid #7eb8ff;outline-offset:2px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}.panel{background:white;border:1px solid var(--border);border-radius:15px;box-shadow:0 3px 17px #183c6610;overflow:hidden}.cap{font-size:12px;font-weight:750;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);padding:12px 16px}.code{background:var(--dark);color:#e5ecf7;padding:15px 7px;min-height:298px;overflow-x:auto;font:14px/1.75 Consolas,"Courier New",monospace}.line{display:flex;gap:12px;align-items:baseline;white-space:pre;padding:3px 10px;border-left:3px solid transparent;min-width:max-content}.line.on{border-left-color:#91d0ff;background:#355577}.ln{min-width:16px;text-align:right;color:#93a8bf;user-select:none}.state{padding:15px;display:flex;flex-direction:column;gap:15px}.label{font-size:13px;color:var(--muted);font-weight:700}.array{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:7px}.cell{background:#f6f9fd;border:2px solid var(--border);border-radius:11px;text-align:center;padding:9px 0 10px}.cell.on{border-color:var(--blue);background:#eaf3ff;box-shadow:0 0 0 2px #94c7ff44}.idx{color:var(--muted);font:12px Consolas,monospace}.v{font-size:26px;font-weight:750}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.metric{border-radius:10px;background:#f0f5fc;padding:9px;min-height:77px}.metric small{font-size:11px;color:var(--muted);display:block}.metric strong{font-size:22px;display:block;line-height:1.45}.metric.sum{background:#e8f7f0;color:var(--green)}.console{padding:11px;border-radius:10px;background:#f6f9fd;border:1px solid var(--border);font:15px Consolas,monospace;min-height:48px}.dim{color:#8b9aab;font-family:system-ui,sans-serif;font-size:13px}.message{padding:14px 17px;background:#eaf3ff;border:1px solid #c6ddff;border-radius:12px;margin:14px 0 12px;min-height:100px}.message strong{display:block;color:#174f9a;margin-bottom:4px}.message p{margin:0}.controls{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.buttons{display:flex;gap:7px;flex-wrap:wrap}.ctrl{padding:10px 13px;background:white;border:1px solid #cbd7e6;border-radius:9px;cursor:pointer;font-size:14px;font-weight:650;color:var(--ink)}.ctrl.primary{background:var(--blue);color:white;border-color:var(--blue)}.ctrl:disabled{opacity:.4;cursor:not-allowed}.step{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.progress{height:6px;background:#dde8f6;border-radius:10px;overflow:hidden;margin-top:11px}.progress > div{height:100%;width:0;background:var(--blue);transition:width .18s}.note{margin-top:10px;color:var(--muted);font-size:13px}.note b{color:var(--ink)}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.wrap{padding:12px}.code{min-height:0}.state{padding:12px}.message{min-height:0}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body><main class="wrap">
+<div class="head"><div><h1>Как перебирают массив <span style="color:#286bd9">for</span> и <span style="color:#08795c">foreach</span></h1><p class="sub">Один массив и один результат — два способа организации перебора</p></div></div>
+<div class="switches">
+ <div class="seg" role="group" aria-label="Язык программирования"><button class="active" type="button" data-lang="csharp" aria-pressed="true">C#</button><button type="button" data-lang="cpp" aria-pressed="false">C++</button></div>
+ <div class="seg" role="group" aria-label="Способ перебора"><button class="active" type="button" data-mode="index" aria-pressed="true">for — по индексу</button><button type="button" data-mode="each" aria-pressed="false">foreach / range-based for</button></div>
+</div>
+<div class="layout">
+<section class="panel" aria-label="Пример программного кода"><div class="cap">Фрагмент программы</div><div class="code" id="code"></div></section>
+<section class="panel" aria-label="Пошаговое состояние программы"><div class="cap">Что происходит с элементами</div><div class="state">
+ <div><div class="label">Массив numbers — 4 элемента</div><div class="array" id="array"></div></div>
+ <div class="metrics"><div class="metric"><small id="firstName">Индекс i</small><strong id="first">—</strong></div><div class="metric"><small>Текущее значение</small><strong id="current">—</strong></div><div class="metric sum"><small>Сумма sum</small><strong id="sum">0</strong></div></div>
+ <div><div class="label">Вывод в консоль</div><div class="console" id="console"><span class="dim">Пока ничего</span></div></div>
+</div></section>
+</div>
+<div class="message" aria-live="polite"><strong id="phase">Подготовка</strong><p id="explain"> </p></div>
+<div class="controls"><div class="buttons"><button id="prev" class="ctrl" type="button">← Назад</button><button id="next" class="ctrl primary" type="button">Дальше →</button><button id="auto" class="ctrl" type="button">▶ Авто</button><button id="reset" class="ctrl" type="button">↺ Сначала</button></div><span class="step" id="stepText">Шаг 1</span></div>
+<div class="progress" aria-hidden="true"><div id="fill"></div></div>
+<p class="note" id="note"></p>
+</main>
+<script>
+(function(){
+'use strict';
+const nums=[4,7,2,5];
+const src={
+ csharp:{index:[['arr','int[] numbers = {4, 7, 2, 5};'],['sum','int sum = 0;'],['loop','for (int i = 0; i < numbers.Length; i++) {'],['body','    sum += numbers[i];'],['end','}'],['out','Console.WriteLine(sum);']],each:[['arr','int[] numbers = {4, 7, 2, 5};'],['sum','int sum = 0;'],['loop','foreach (int value in numbers) {'],['body','    sum += value;'],['end','}'],['out','Console.WriteLine(sum);']]},
+ cpp:{index:[['arr','int numbers[4] = {4, 7, 2, 5};'],['sum','int sum = 0;'],['loop','for (int i = 0; i < 4; i++) {'],['body','    sum += numbers[i];'],['end','}'],['out','cout << sum;']],each:[['arr','int numbers[4] = {4, 7, 2, 5};'],['sum','int sum = 0;'],['loop','for (int value : numbers) {'],['body','    sum += value;'],['end','}'],['out','cout << sum;']]}
+};
+let lang='csharp',mode='index',step=0,timer=null;
+const esc=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+function build(){
+ const s=[{kind:'arr',idx:null,cur:null,i:null,sum:0,output:false,title:'Создаём массив',explain:'В массиве четыре значения: 4, 7, 2 и 5. Позиции элементов обозначены индексами от 0 до 3.'},{kind:'sum',idx:null,cur:null,i:null,sum:0,output:false,title:'Начальная сумма',explain:'Перед обработкой элементов переменная sum равна 0.'}];
+ let total=0;
+ for(let i=0;i<nums.length;i++){
+   if(mode==='index'){
+     s.push({kind:'loop',idx:i,cur:null,i,sum:total,output:false,title:'Проверяем условие for',explain:'Счётчик i = '+i+'. Условие '+i+' < 4 истинно: обращаемся к элементу numbers['+i+'].'});
+     s.push({kind:'body',idx:i,cur:nums[i],i,sum:total+nums[i],output:false,title:'Берём значение по индексу',explain:'numbers['+i+'] = '+nums[i]+'. Прибавляем элемент к сумме: '+total+' + '+nums[i]+' = '+(total+nums[i])+'.'});
+   } else {
+     s.push({kind:'loop',idx:i,cur:nums[i],i:null,sum:total,output:false,title:'Получаем следующий элемент',explain:'В переменную value попадает значение '+nums[i]+'. Обращаться к numbers['+i+'] в коде не требуется.'});
+     s.push({kind:'body',idx:i,cur:nums[i],i:null,sum:total+nums[i],output:false,title:'Добавляем значение',explain:'Прибавляем value ('+nums[i]+') к сумме: '+total+' + '+nums[i]+' = '+(total+nums[i])+'.'});
+   }
+   total+=nums[i];
+ }
+ s.push({kind:'loop',idx:null,cur:null,i:mode==='index'?4:null,sum:total,output:false,title:'Перебор завершён',explain:mode==='index'?'Счётчик стал равен 4, поэтому условие 4 < 4 ложно. Индекс 4 не используется.':'Следующих элементов больше нет. Цикл завершился автоматически.'});
+ s.push({kind:'out',idx:null,cur:null,i:mode==='index'?4:null,sum:total,output:true,title:'Результат',explain:'Все четыре элемента обработаны. Сумма: 4 + 7 + 2 + 5 = 18. Программа выводит 18.'});
+ return s;
+}
+let frames=build();
+function render(){
+ const s=frames[step];
+ document.getElementById('code').innerHTML=src[lang][mode].map(([kind,val],i)=>'<div class="line'+(kind===s.kind?' on':'')+'"><span class="ln">'+(i+1)+'</span><span>'+esc(val)+'</span></div>').join('');
+ document.getElementById('array').innerHTML=nums.map((v,i)=>'<div class="cell'+(s.idx===i?' on':'')+'"><div class="idx">['+i+']</div><div class="v">'+v+'</div></div>').join('');
+ document.getElementById('firstName').textContent=mode==='index'?'Индекс i':'Индекс в коде';
+ document.getElementById('first').textContent=mode==='index'?(s.i===null?'—':s.i):'нет';
+ document.getElementById('current').textContent=s.cur===null?'—':s.cur;
+ document.getElementById('sum').textContent=s.sum;
+ document.getElementById('console').innerHTML=s.output?'18':'<span class="dim">Пока ничего</span>';
+ document.getElementById('phase').textContent=s.title;document.getElementById('explain').textContent=s.explain;
+ document.getElementById('note').innerHTML=mode==='index'?'<b>Обрати внимание:</b> цикл <code>for</code> использует индекс <code>i</code>, чтобы читать <code>numbers[i]</code>.':'<b>Обрати внимание:</b> в C# используется <code>foreach (int value in numbers)</code>, в C++ — <code>for (int value : numbers)</code>. В обоих случаях цикл получает сами значения. Индекс на рисунке показан для наглядности, в коде он не используется.';
+ document.getElementById('prev').disabled=step===0;document.getElementById('next').disabled=step===frames.length-1;
+ document.getElementById('stepText').textContent='Шаг '+(step+1)+' из '+frames.length;
+ document.getElementById('fill').style.width=(100*(step+1)/frames.length)+'%';
+}
+function stop(){if(timer!==null){clearInterval(timer);timer=null;}document.getElementById('auto').textContent='▶ Авто';}
+function restart(){stop();frames=build();step=0;render();}
+document.querySelectorAll('[data-lang]').forEach(btn=>btn.addEventListener('click',()=>{lang=btn.dataset.lang;document.querySelectorAll('[data-lang]').forEach(x=>{let on=x===btn;x.classList.toggle('active',on);x.setAttribute('aria-pressed',String(on))});restart();}));
+document.querySelectorAll('[data-mode]').forEach(btn=>btn.addEventListener('click',()=>{mode=btn.dataset.mode;document.querySelectorAll('[data-mode]').forEach(x=>{let on=x===btn;x.classList.toggle('active',on);x.setAttribute('aria-pressed',String(on))});restart();}));
+document.getElementById('next').addEventListener('click',()=>{stop();if(step<frames.length-1)step++;render()});
+document.getElementById('prev').addEventListener('click',()=>{stop();if(step>0)step--;render()});
+document.getElementById('reset').addEventListener('click',restart);
+document.getElementById('auto').addEventListener('click',()=>{if(timer!==null){stop();return;}if(step===frames.length-1)step=0;render();document.getElementById('auto').textContent='⏸ Пауза';timer=setInterval(()=>{if(step<frames.length-1){step++;render()}else stop()},1300);});
+render();
+})();
+</script>
+</body></html>
