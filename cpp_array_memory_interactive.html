@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Массив C++ в памяти — интерактивная модель</title>
+<style>
+:root {color-scheme:light;--ink:#172d48;--muted:#55677d;--primary:#3469d6;--line:#d7e1ef;--bg:#f6f8fc;--light:#eaf1ff;--green:#187750;--orange:#8c5b16}
+*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:var(--ink);background:#fff;margin:0;padding:16px;line-height:1.45}
+main{max-width:920px;margin:auto}h1{font-size:clamp(19px,3vw,27px);line-height:1.2;margin:0 0 7px}p{margin:0 0 12px}.muted{color:var(--muted);font-size:13px}
+.controls{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}.scenario{border:1px solid var(--line);border-radius:9px;background:white;padding:9px 13px;cursor:pointer;font-size:14px;color:var(--ink)}.scenario[aria-pressed=true]{background:var(--light);border-color:var(--primary);font-weight:700}button:focus-visible{outline:3px solid #9ec0ff;outline-offset:2px}
+pre{background:#1e293e;color:#f6f8ff;border-radius:11px;padding:16px;white-space:pre-wrap;font:15px/1.6 Consolas,Menlo,monospace;overflow:auto;margin:0 0 14px}code{font-family:Consolas,Menlo,monospace}
+.legend{display:flex;justify-content:space-between;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:8px}.cells{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}.cell{min-width:0;border:2px solid var(--line);border-radius:10px;background:#f7faff;text-align:center;padding:12px 3px;cursor:pointer;color:var(--ink)}.cell.active{border-color:var(--primary);background:#dfebff;box-shadow:0 0 0 2px #dae6fa}.idx,.addr{display:block;font-size:12px;color:var(--muted)}.val{display:block;font-size:clamp(19px,4vw,27px);font-weight:750;margin:7px 0}.unknown{color:#8c5b16;font-size:clamp(13px,2.4vw,17px)}
+.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:13px}.info{border:1px solid var(--line);border-radius:9px;padding:11px;background:var(--bg)}.info small{display:block;color:var(--muted)}.info strong{font-size:18px}.message{border-radius:10px;background:#f0f5ff;padding:13px;margin-top:12px;min-height:72px}.warning{background:#fff6e6;border:1px solid #ead3a1}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}button.action{background:white;border:1px solid #cdd7e4;border-radius:9px;padding:9px 14px;cursor:pointer;color:var(--ink);font-weight:600}button.action.primary{color:white;background:var(--primary);border-color:var(--primary)}button:disabled{opacity:.45;cursor:not-allowed}.foot{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px;margin-top:14px}
+@media(max-width:560px){body{padding:10px}.row{grid-template-columns:1fr}.cells{gap:4px}.cell{padding:10px 2px}.addr{font-size:10px}}
+</style>
+</head><body><main>
+<h1>Как обычный массив C++ хранится в памяти</h1>
+<p class="muted">Учебная модель: условные адреса, последовательные элементы и разные способы инициализации.</p>
+<div class="controls" role="group" aria-label="Способ инициализации">
+<button class="scenario" data-case="values" aria-pressed="true">Заданные значения</button>
+<button class="scenario" data-case="zeros" aria-pressed="false">Нули</button>
+<button class="scenario" data-case="partial" aria-pressed="false">Частичная</button>
+<button class="scenario" data-case="uninit" aria-pressed="false">Без инициализации</button>
+</div>
+<pre id="code" aria-label="Код C++"></pre>
+<div class="legend"><strong>Четыре элемента массива</strong><span class="muted">Нажми на элемент, чтобы рассмотреть его</span></div>
+<div class="cells" id="cells"></div>
+<div class="row">
+ <div class="info"><small>Число элементов</small><strong>4</strong></div>
+ <div class="info"><small>Размер одного int (пример)</small><strong>4 байта</strong></div>
+ <div class="info"><small>Размер всего массива (пример)</small><strong>16 байт</strong></div>
+</div>
+<div id="message" class="message" aria-live="polite"></div>
+<div class="buttons"><button class="action" id="prev">← Назад</button><button class="action primary" id="next">Дальше →</button><button class="action" id="play">▶ Авто</button><button class="action" id="reset">↺ Сначала</button><span id="progress" class="muted" style="align-self:center;margin-left:auto"></span></div>
+<p class="foot">На рисунке показаны <b>условные</b> адреса A, A + 4, A + 8 и A + 12 при размере <code>int</code> в 4 байта. В реальной программе адреса будут другими; размер <code>int</code> зависит от реализации. Сценарий без инициализации не выводит вымышленные «случайные числа»: читать такие локальные элементы до присваивания нельзя.</p>
+</main>
+<script>
+(()=>{
+const cases={
+ values:{code:'int numbers[4] = {4, 7, 2, 5};',vals:['4','7','2','5'],msg:'Все четыре элемента получают заданные значения.'},
+ zeros:{code:'int numbers[4]{};',vals:['0','0','0','0'],msg:'Фигурные скобки {} инициализируют четыре элемента нулями. Это не пустой массив!'},
+ partial:{code:'int numbers[4] = {4, 7};',vals:['4','7','0','0'],msg:'Первые два элемента заданы явно, остальные инициализируются нулями.'},
+ uninit:{code:'int numbers[4];',vals:['не задано','не задано','не задано','не задано'],msg:'Обычный локальный массив не получил начальных значений. Читать его элементы до присваивания нельзя.'}
+};
+let mode='values',step=0,timer=null;const cells=document.querySelector('#cells'),code=document.querySelector('#code'),msg=document.querySelector('#message'),prog=document.querySelector('#progress'),play=document.querySelector('#play');
+function stop(){if(timer!==null){clearInterval(timer);timer=null;}play.textContent='▶ Авто';}
+function render(){const c=cases[mode];code.textContent=c.code+'\n// sizeof(numbers) == 4 * sizeof(int)';cells.innerHTML='';for(let i=0;i<4;i++){
+const b=document.createElement('button');b.type='button';b.className='cell'+(step===i+1?' active':'');b.setAttribute('aria-label','Элемент с индексом '+i);
+const valClass=mode==='uninit'?'val unknown':'val';b.innerHTML='<span class="idx">numbers['+i+']</span><span class="'+valClass+'">'+c.vals[i]+'</span><span class="addr">A'+(i?' + '+(i*4):'')+'</span>';b.onclick=()=>{stop();step=i+1;render()};cells.appendChild(b)}
+const active=step-1;msg.className='message'+(mode==='uninit'?' warning':'');
+msg.textContent=step===0?c.msg:('Элемент numbers['+active+'] расположен по условному адресу '+(active?'A + '+active*4:'A')+'. '+(mode==='uninit'?'Начальное значение не задано: не читай его до присваивания.':'Его значение: '+c.vals[active]+'.'));
+prog.textContent='Шаг '+step+' из 4';document.querySelector('#prev').disabled=step===0;document.querySelector('#next').disabled=step===4;
+document.querySelectorAll('[data-case]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.case===mode)));
+}
+document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{stop();mode=b.dataset.case;step=0;render()});
+document.querySelector('#prev').onclick=()=>{stop();step=Math.max(0,step-1);render()};
+document.querySelector('#next').onclick=()=>{stop();step=Math.min(4,step+1);render()};
+document.querySelector('#reset').onclick=()=>{stop();step=0;render()};
+play.onclick=()=>{if(timer!==null){stop();return}if(step===4)step=0;play.textContent='Ⅱ Пауза';render();timer=setInterval(()=>{if(step<4){step++;render()}else stop()},1300)};
+render();
+})();
+</script>
+</body></html>
