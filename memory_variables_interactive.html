@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Как данные хранятся в памяти — C++ и C#</title>
+<style>
+:root { color-scheme: light; --bg:#f5f7fb; --white:#fff; --line:#d9e1ed; --txt:#1c293b; --muted:#617088; --blue:#2563eb; --bluefade:#eff6ff; --green:#166534; --greenfade:#ebf9f0; --amber:#92400e; --amberfade:#fffbeb; }
+* {box-sizing:border-box} body {margin:0; padding:18px; font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif; color:var(--txt); background:var(--bg); font-size:15px;line-height:1.5}
+main {max-width:940px;margin:auto;} h1 {font-size:24px;margin:0 0 4px;letter-spacing:-.5px;} .subtitle {color:var(--muted);margin:0 0 17px;font-size:14px}
+.panel {background:var(--white);border:1px solid var(--line);border-radius:15px;padding:17px;margin:12px 0;box-shadow:0 4px 15px rgba(19,41,76,.035)}
+.controls {display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between} .group {display:flex;flex-wrap:wrap;gap:6px;align-items:center} label {font-weight:700;font-size:13px;color:#43536a;margin-right:6px}
+button {font-family:inherit;cursor:pointer;border:1px solid #cfd9e8;background:white;color:var(--txt);font-size:14px;font-weight:650;border-radius:9px;padding:8px 12px;transition:.14s} button:hover:not(:disabled) {background:#edf3fb} button:disabled {opacity:.45;cursor:default} button[aria-pressed="true"]{background:var(--blue);color:white;border-color:var(--blue)} button.primary {background:var(--blue);color:white;border-color:var(--blue)} button.primary:hover:not(:disabled){background:#1d4ed8}
+.code {background:#102039;color:#e5edf9;border-radius:12px;overflow:auto;padding:12px 0;font-size:15px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.8} .line {display:block;padding:0 17px;white-space:pre;min-height:27px;border-left:4px solid transparent} .line.active{background:#243e67;border-left-color:#77b4ff} .ln {display:inline-block;color:#91a3bd;width:22px;user-select:none}
+.layout {display:grid;grid-template-columns:1fr 1fr;gap:12px} @media(max-width:700px){.layout{grid-template-columns:1fr}body{padding:10px}}
+.pretitle{font-size:12px;font-weight:750;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}.memory{display:flex;align-items:stretch;gap:7px;flex-wrap:wrap;min-height:95px}.cell{min-width:90px;flex:1;border:2px solid #bfd4f7;background:#f6faff;border-radius:12px;padding:8px;text-align:center}.cell.changed{background:var(--greenfade);border-color:#55b17f}.cell.placeholder{background:#f5f5f5;border:2px dashed #d1d5db;color:#9ca3af}.addr{font-size:11px;color:#748197;letter-spacing:.01em}.value{font-size:29px;line-height:1.35;font-weight:800;font-variant-numeric:tabular-nums}.name{font-size:13px;color:#43536a;font-weight:700}.arrow{font-size:23px;color:var(--blue);align-self:center}.legend {font-size:12px;color:var(--muted);margin:8px 0 0}
+.explain{margin-top:11px;padding:11px 13px;background:var(--bluefade);border:1px solid #cfe2ff;border-radius:10px;min-height:74px}.explain strong{display:block;margin-bottom:4px}.footer{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.counter{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}.note{font-size:12px;color:#6a5a36;background:#fff9e9;border:1px solid #f0ddb0;padding:10px 13px;border-radius:10px;margin-top:12px} 
+</style>
+</head>
+<body>
+<main>
+<h1>Как данные хранятся в памяти</h1>
+<p class="subtitle">Интерактивная модель: выбери ситуацию и проходи программу шаг за шагом. Адреса на схеме условные.</p>
+<div class="panel controls">
+ <div class="group" aria-label="Ситуация"><label>Ситуация</label><button type="button" class="scenario" data-scenario="change" aria-pressed="true">Изменение значения</button><button type="button" class="scenario" data-scenario="copy" aria-pressed="false">Копирование int</button><button type="button" class="scenario" data-scenario="array" aria-pressed="false">Элементы массива</button></div>
+ <div class="group" aria-label="Язык"><label>Язык</label><button type="button" class="lang" data-lang="cpp" aria-pressed="true">C++</button><button type="button" class="lang" data-lang="cs" aria-pressed="false">C#</button></div>
+</div>
+<div class="layout">
+ <div class="panel">
+  <p class="pretitle">Программа</p><div id="code" class="code" aria-live="polite"></div>
+  <p class="legend" id="code-note">Подсвечена инструкция текущего шага.</p>
+ </div>
+ <div class="panel">
+  <p class="pretitle">Модель данных в памяти</p><div class="memory" id="memory" aria-live="polite"></div>
+  <p class="legend" id="memory-note"></p>
+ </div>
+</div>
+<div class="panel">
+ <div id="explain" class="explain" aria-live="polite"></div>
+ <div class="footer" style="margin-top:13px">
+  <div class="group"><button id="prev" type="button">← Назад</button><button id="next" type="button" class="primary">Дальше →</button><button id="auto" type="button">▶ Авто</button><button id="reset" type="button">↺ Сначала</button></div>
+  <span class="counter" id="count"></span>
+ </div>
+ <div class="note" id="note">Это упрощённая учебная схема, а не снимок реальных адресов оперативной памяти. Программа и компилятор могут размещать данные по-разному.</div>
+</div>
+</main>
+<script>
+(() => {
+ const models={
+  change:{
+   code:{cpp:['int x = 10;','x = 20;','cout << x;'],cs:['int x = 10;','x = 20;','Console.WriteLine(x);']},
+   states:[
+    {line:0, vars:[['x','10','A100',true]], head:'Создаём переменную',body:'Переменная x получает начальное значение 10.'},
+    {line:1, vars:[['x','20','A100',true]], head:'Меняем значение',body:'Инструкция x = 20 заменяет значение x. В этой модели имя переменной и её условный адрес остаются прежними.'},
+    {line:2, vars:[['x','20','A100',false]], head:'Используем новое значение',body:'Команда вывода обращается к текущему значению x: это 20, а не 10.'}
+   ],
+   memoryNote:'Одна переменная, значение меняется. A100 — условное обозначение адреса.',note:'В модели мы показываем логическое хранение значения. Реальный компилятор может держать локальное значение в регистре и не создавать отдельную ячейку памяти.'
+  },
+  copy:{
+   code:{cpp:['int a = 10;','int b = a;','b = 30;','cout << a << " " << b;'],cs:['int a = 10;','int b = a;','b = 30;','Console.WriteLine($"{a} {b}");']},
+   states:[
+    {line:0,vars:[['a','10','A100',true],['b','—','B200',false,'placeholder']],head:'Сначала существует a',body:'Переменная a содержит значение 10. Переменная b ещё не объявлена.'},
+    {line:1,vars:[['a','10','A100',false],['b','10','B200',true]],head:'Копируем значение',body:'b = a копирует число 10 в b. Теперь есть две самостоятельные переменные со значением 10.'},
+    {line:2,vars:[['a','10','A100',false],['b','30','B200',true]],head:'Меняем только b',body:'Присваивание b = 30 изменяет b. Значение a остаётся равным 10.'},
+    {line:3,vars:[['a','10','A100',false],['b','30','B200',false]],head:'Результат',body:'Будет выведено: 10 30. Для int в этих примерах присваивание копирует значение.'}
+   ],
+   memoryNote:'Две независимые переменные. Адреса A100 и B200 условные.',note:'Для обычного int в C++ и C# это копирование значения. С массивами в C# ситуация другая — их ссылочную природу изучим позже.'
+  },
+  array:{
+   code:{cpp:['int numbers[3] = {10, 20, 30};','numbers[1] = 99;','cout << numbers[1];'],cs:['int[] numbers = {10, 20, 30};','numbers[1] = 99;','Console.WriteLine(numbers[1]);']},
+   states:[
+    {line:0,vars:[['numbers[0]','10','A',true],['numbers[1]','20','A + size',true],['numbers[2]','30','A + 2·size',true]],head:'Создаём массив',body:'Три элемента хранят три целых числа. Элементы массива идут по порядку и имеют индексы 0, 1, 2.'},
+    {line:1,vars:[['numbers[0]','10','A',false],['numbers[1]','99','A + size',true],['numbers[2]','30','A + 2·size',false]],head:'Изменяем второй элемент',body:'numbers[1] означает элемент с индексом 1 (второй). Изменяется только его значение: 20 → 99.'},
+    {line:2,vars:[['numbers[0]','10','A',false],['numbers[1]','99','A + size',true],['numbers[2]','30','A + 2·size',false]],head:'Читаем по индексу',body:'При обращении numbers[1] программа получает 99. Индекс — это положение элемента, не его адрес в байтах.'}
+   ],
+   memoryNote:'A + size — условный адрес следующего элемента, size — размер одного int в байтах.',note:'Для C++ элементы обычного массива располагаются непрерывно. В C# массив — объект ссылочного типа; здесь показаны только его элементы, а ссылки разберём в следующем разделе. Численные реальные адреса эта модель не показывает.'
+  }
+ };
+ let scenario='change',lang='cpp',pos=0,timer=null;
+ const $=id=>document.getElementById(id);
+ function stop(){if(timer!==null){clearInterval(timer);timer=null;} $('auto').textContent='▶ Авто'}
+ function render(){
+   let m=models[scenario], st=m.states[pos];
+   document.querySelectorAll('.scenario').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.scenario===scenario)));
+   document.querySelectorAll('.lang').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lang===lang)));
+   const code=$('code'); code.replaceChildren();
+   m.code[lang].forEach((line,i)=>{const el=document.createElement('div');el.className='line'+(st.line===i?' active':'');const ln=document.createElement('span');ln.className='ln';ln.textContent=(i+1)+' ';el.append(ln,document.createTextNode(line));code.append(el)});
+   const memory=$('memory');memory.replaceChildren();
+   st.vars.forEach(([name,value,addr,changed,extra])=>{const cell=document.createElement('div');cell.className='cell'+(changed?' changed':'')+(extra?' '+extra:'');const top=document.createElement('div');top.className='name';top.textContent=name;const val=document.createElement('div');val.className='value';val.textContent=value;const a=document.createElement('div');a.className='addr';a.textContent=addr;cell.append(top,val,a);memory.append(cell)});
+   $('memory-note').textContent=m.memoryNote;
+   const exp=$('explain');exp.replaceChildren();const h=document.createElement('strong');h.textContent=st.head;const p=document.createElement('span');p.textContent=st.body;exp.append(h,p);
+   $('note').textContent=m.note;
+   $('count').textContent=`Шаг ${pos+1} из ${m.states.length}`;
+   $('prev').disabled=pos===0; $('next').disabled=pos===m.states.length-1;
+ }
+ document.querySelectorAll('.scenario').forEach(b=>b.addEventListener('click',()=>{stop();scenario=b.dataset.scenario;pos=0;render()}));
+ document.querySelectorAll('.lang').forEach(b=>b.addEventListener('click',()=>{stop();lang=b.dataset.lang;render()}));
+ $('prev').addEventListener('click',()=>{stop();pos=Math.max(0,pos-1);render()});
+ $('next').addEventListener('click',()=>{stop();pos=Math.min(models[scenario].states.length-1,pos+1);render()});
+ $('reset').addEventListener('click',()=>{stop();pos=0;render()});
+ $('auto').addEventListener('click',()=>{
+    if(timer!==null){stop();return}
+    if(pos===models[scenario].states.length-1){pos=0;render()}
+    $('auto').textContent='⏸ Пауза';
+    timer=setInterval(()=>{if(pos<models[scenario].states.length-1){pos++;render()}else stop()},1500)
+ });
+ render();
+})();
+</script>
+</body></html>
