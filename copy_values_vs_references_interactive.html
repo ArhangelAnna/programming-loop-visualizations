@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Копирование значений и ссылок — C++ и C#</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#1a2b45;background:#f4f7fc}
+*{box-sizing:border-box}body{margin:0;padding:18px}.app{max-width:1030px;margin:auto;background:#fff;border:1px solid #d8e2f1;border-radius:18px;padding:22px;box-shadow:0 8px 32px #20365d0a}h1{font-size:23px;margin:0 0 8px}.sub{color:#53677d;margin:0 0 20px;line-height:1.5}button{font:inherit;cursor:pointer;border:1px solid #c5d4e8;background:white;color:#244166;border-radius:9px;padding:9px 14px}button:hover:not(:disabled){background:#edf4ff}button:disabled{opacity:.4;cursor:default}button.selected,button.primary{background:#2168ca;color:#fff;border-color:#2168ca}.selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}.selector button{flex:1;min-width:220px}.desc{border-left:4px solid #2981d9;padding:9px 13px;background:#eef6ff;border-radius:4px 8px 8px 4px;margin-bottom:15px;line-height:1.45}.content{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{border:1px solid #dee5f1;border-radius:12px;overflow:hidden}.panel h2{font-size:15px;background:#ecf2f9;padding:11px 14px;margin:0}.code{background:#172638;color:#dfe8f7;min-height:280px;margin:0;padding:13px;overflow:auto;font:14px/2 Consolas,Monaco,monospace;white-space:pre}.code .line{display:block;padding:0 7px;margin-left:-7px;border-left:3px solid transparent;border-radius:4px}.code .line.active{background:#35567c;border-color:#62d0ff;color:#fff}.memory{padding:14px;min-height:280px;display:flex;flex-direction:column;gap:13px}.group-title{font-size:13px;font-weight:700;color:#53677d}.variables{display:flex;gap:10px;flex-wrap:wrap}.var{border:1px solid #a6c1e7;background:#eff6ff;border-radius:9px;min-width:100px;padding:10px 14px;text-align:center}.var .vname{font-weight:700}.var .vval{font:17px Consolas,monospace;margin-top:6px}.object{border:2px solid #65aaa1;background:#eefbf8;border-radius:12px;padding:12px}.object-head{font-size:13px;font-weight:700;margin-bottom:8px}.cells{display:flex;gap:6px}.cell{border:1px solid #95bfb7;background:#fff;border-radius:7px;padding:10px 8px;flex:1;min-width:35px;text-align:center;font:18px Consolas,monospace}.cell small{display:block;color:#657789;font:11px system-ui;margin-bottom:5px}.twoblocks{display:flex;gap:9px;flex-wrap:wrap}.twoblocks .object{flex:1;min-width:115px}.arrow{color:#1766b6;font-size:12px;margin-top:4px}.empty{color:#687990;font-size:13px;line-height:1.5}.note{margin-top:14px;padding:14px;border-radius:11px;background:#eef7ff;min-height:80px;line-height:1.5}.note strong{color:#1555ab}.console{margin-top:12px;background:#1d2e43;color:#e6fff7;font:16px Consolas,monospace;padding:12px 14px;border-radius:9px;min-height:44px;white-space:pre-wrap}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}.count{margin-left:auto;color:#546782;font-size:13px}.progress{margin:15px 0 0;height:6px;background:#e5eaf3;border-radius:20px;overflow:hidden}.bar{height:100%;width:0;background:#226dce;transition:width .2s}.foot{font-size:12px;color:#66778b;margin-top:15px;line-height:1.6}@media(max-width:680px){.content{grid-template-columns:1fr}.app{padding:14px}.code,.memory{min-height:0}.selector button{min-width:100%}}
+</style>
+</head>
+<body><main class="app">
+<h1>Копирование значений и ссылок</h1>
+<p class="sub">Выбери сценарий, затем нажимай «Дальше». Следи за переменными, объектами массива и выводом программы.</p>
+<div class="selector" role="group" aria-label="Сценарий">
+<button id="pick-value" data-case="value">1. Копирование int · C++ и C#</button>
+<button id="pick-alias" data-case="alias">2. Одна ссылка на массив · C#</button>
+<button id="pick-independent" data-case="independent">3. Независимые массивы · C++</button>
+</div>
+<div class="desc" id="desc"></div>
+<div class="content">
+<section class="panel"><h2 id="codeTitle">Программа</h2><div class="code" id="code" aria-label="Код"></div></section>
+<section class="panel"><h2>Упрощённая модель данных</h2><div class="memory" id="memory" aria-live="polite"></div></section>
+</div>
+<div class="note" id="note" aria-live="polite"></div>
+<div class="console" id="console" aria-label="Вывод программы"></div>
+<div class="controls">
+<button id="prev">← Назад</button><button class="primary" id="next">Дальше →</button><button id="play">▶ Авто</button><button id="reset">↺ Сначала</button><span class="count" id="count"></span>
+</div><div class="progress"><div class="bar" id="bar"></div></div>
+<p class="foot">Учебная визуализация: она отображает логические связи между переменными и объектами. Это не точная схема регистров, стека или физических адресов. В режиме C++ два массива создаются отдельно, а их элементы копируются циклом.</p>
+</main>
+<script>
+const codeSets={
+value:{title:'Пример C++ (в C# результат такой же)',desc:'Переменные типа int содержат самостоятельные значения. Копирование числа не связывает две переменные.',lines:['int a = 10;','int b = a;','b = 99;','cout << a << " " << b;'],steps:[{line:0,a:10,b:null,exp:'Создаём a со значением 10.',out:''},{line:1,a:10,b:10,exp:'Переменная b получает копию числа 10. Теперь это два независимых значения.',out:''},{line:2,a:10,b:99,exp:'Меняется только b. Значение a по-прежнему равно 10.',out:''},{line:3,a:10,b:99,exp:'Вывод 10 99: изменение копии не меняет исходное значение.',out:'10 99'}]},
+alias:{title:'Пример C#',desc:'При b = a копируется ссылка. Новый массив не создаётся, поэтому обе переменные ведут к одному объекту.',lines:['int[] a = {10, 20, 30};','int[] b = a;','b[0] = 99;','Console.WriteLine(a[0]);','Console.WriteLine(b[0]);'],steps:[{line:0,refs:['a'],arr:[10,20,30],exp:'Создаётся один объект массива. Переменная a ссылается на него.',out:''},{line:1,refs:['a','b'],arr:[10,20,30],exp:'Переменная b получает копию ссылки a. В памяти по-прежнему только один объект массива.',out:''},{line:2,refs:['a','b'],arr:[99,20,30],exp:'Через b изменили первый элемент общего массива. Изменение видно и через a.',out:''},{line:3,refs:['a','b'],arr:[99,20,30],exp:'a[0] теперь равно 99.',out:'99'},{line:4,refs:['a','b'],arr:[99,20,30],exp:'b[0] тоже равно 99, потому что обе ссылки ведут к одному массиву.',out:'99\n99'}]},
+independent:{title:'Пример C++',desc:'В C++ обычные массивы не копируются присваиванием b = a. Создадим второй массив и перенесём значения поэлементно.',lines:['int a[3] = {10, 20, 30};','int b[3]{};','for (int i = 0; i < 3; i++) {','    b[i] = a[i];','}','b[0] = 99;','cout << a[0];'],steps:[{line:0,a:[10,20,30],b:null,exp:'Создаётся исходный массив a.',out:''},{line:1,a:[10,20,30],b:[0,0,0],exp:'Создаётся второй независимый массив b с нулевыми значениями.',out:''},{line:3,a:[10,20,30],b:[10,0,0],exp:'Первая итерация копирует a[0] в b[0].',out:''},{line:3,a:[10,20,30],b:[10,20,0],exp:'Вторая итерация копирует a[1] в b[1].',out:''},{line:3,a:[10,20,30],b:[10,20,30],exp:'Третья итерация копирует a[2] в b[2].',out:''},{line:5,a:[10,20,30],b:[99,20,30],exp:'Изменяем b[0]. Исходный массив a остаётся прежним.',out:''},{line:6,a:[10,20,30],b:[99,20,30],exp:'Выводится 10, потому что a и b — разные массивы.',out:'10'}]}};
+let chosen='value',step=0,timer=null;
+const E=id=>document.getElementById(id);
+function stop(){if(timer!==null){clearInterval(timer);timer=null;}E('play').textContent='▶ Авто'}
+function cells(arr){return '<div class="cells">'+arr.map((v,i)=>'<div class="cell"><small>['+i+']</small>'+v+'</div>').join('')+'</div>'}
+function draw(){let p=codeSets[chosen],s=p.steps[step];E('desc').textContent=p.desc;E('codeTitle').textContent=p.title;
+ E('code').innerHTML=p.lines.map((line,i)=>'<span class="line'+(i===s.line?' active':'')+'">'+escapeHtml(line)+'</span>').join('');
+ let html='';if(chosen==='value'){html='<div class="group-title">Переменные, содержащие значения</div><div class="variables"><div class="var"><div class="vname">a</div><div class="vval">'+s.a+'</div></div>'+(s.b===null?'': '<div class="var"><div class="vname">b</div><div class="vval">'+s.b+'</div></div>')+'</div><p class="empty">Изменение b не влияет на a.</p>'}
+ if(chosen==='alias'){html='<div class="group-title">Переменные-ссылки</div><div class="variables">'+s.refs.map(v=>'<div class="var"><div class="vname">'+v+'</div><div class="arrow">↓ тот же объект</div></div>').join('')+'</div><div class="object"><div class="object-head">Объект массива №1</div>'+cells(s.arr)+'</div><p class="empty">Объект один: значение первого элемента одинаково при обращении через a и b.</p>'}
+ if(chosen==='independent'){html='<div class="group-title">Два отдельных объекта-массива</div><div class="twoblocks"><div class="object"><div class="object-head">Массив a</div>'+cells(s.a)+'</div>'+(s.b===null?'':'<div class="object"><div class="object-head">Массив b</div>'+cells(s.b)+'</div>')+'</div><p class="empty">Каждый массив имеет собственные элементы.</p>'}
+ E('memory').innerHTML=html;E('note').innerHTML='<strong>Шаг '+(step+1)+'. </strong>'+escapeHtml(s.exp);E('console').textContent=s.out||'Вывод: пока пусто';E('count').textContent=(step+1)+' / '+p.steps.length;E('bar').style.width=((step+1)/p.steps.length*100)+'%';E('prev').disabled=step===0;E('next').disabled=step===p.steps.length-1;
+ for(const btn of document.querySelectorAll('[data-case]')){const ok=btn.dataset.case===chosen;btn.classList.toggle('selected',ok);btn.setAttribute('aria-pressed',String(ok));}}
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function choose(v){stop();chosen=v;step=0;draw()}
+document.querySelectorAll('[data-case]').forEach(btn=>btn.addEventListener('click',()=>choose(btn.dataset.case)));
+E('prev').onclick=()=>{stop();step=Math.max(0,step-1);draw()};E('next').onclick=()=>{stop();step=Math.min(codeSets[chosen].steps.length-1,step+1);draw()};E('reset').onclick=()=>{stop();step=0;draw()};E('play').onclick=()=>{if(timer!==null){stop();return}if(step===codeSets[chosen].steps.length-1)step=0;draw();E('play').textContent='⏸ Пауза';timer=setInterval(()=>{if(step<codeSets[chosen].steps.length-1){step++;draw()}else{stop()}},1700)};
+draw();
+</script>
+</body></html>
