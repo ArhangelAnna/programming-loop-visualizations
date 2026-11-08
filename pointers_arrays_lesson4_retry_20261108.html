@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Указатели и массивы в C++ — интерактивная модель</title>
+<style>
+:root{--ink:#17243b;--muted:#586780;--border:#d6dfeb;--bg:#f6f9ff;--blue:#2563eb;--green:#0c8f70;--amber:#b45309;--card:#fff}
+*{box-sizing:border-box}body{margin:0;padding:24px;font:15px/1.55 'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--ink)}.wrap{max-width:990px;margin:auto}.top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.top h1{font-size:24px;line-height:1.25;margin:0 0 8px}.top p{margin:0;color:var(--muted)}.eyebrow{color:#365ba4;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}.note{margin:14px 0 16px;padding:10px 14px;background:#eef4ff;border-left:4px solid #6d9af9;border-radius:7px;color:#314563;font-size:13px}.panel{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 5px 20px rgba(44,66,104,.05);padding:18px;margin-top:14px}.tabrow{display:flex;gap:8px;flex-wrap:wrap}.tab{border:1px solid var(--border);background:#fff;border-radius:9px;padding:9px 12px;font:600 14px 'Segoe UI',Arial;cursor:pointer;color:var(--ink)}.tab[aria-selected=true]{background:#e8f0ff;color:#1746a2;border-color:#83a9fd}.columns{display:grid;grid-template-columns:1.05fr .95fr;gap:15px}.caption{color:var(--muted);font-size:13px;margin-bottom:7px;font-weight:600}.code{white-space:pre;overflow:auto;border-radius:12px;background:#17223b;color:#f0f5ff;padding:12px 14px;font:15px/2 Consolas,'Courier New',monospace;min-height:270px}.line{display:block;border-left:3px solid transparent;padding:1px 7px;margin-left:-5px;transition:background .16s}.line.active{background:#344a72;border-color:#7cb2ff}.line .num{display:inline-block;min-width:22px;color:#9eafc8;user-select:none}.key{color:#93c5fd}.lit{color:#f9c78b}.obj{color:#8ee1d3}.visual{min-height:270px}.arraytitle{font-weight:700;margin-bottom:10px}.cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;max-width:410px}.cell{position:relative;text-align:center;border:2px solid #cbd8e9;border-radius:10px;background:#f9fbff;padding:10px 4px;transition:background .18s,border-color .18s}.cell.focus{background:#e7f0ff;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.11)}.idx{font-size:12px;color:#62728b}.val{font:bold 28px Consolas,'Courier New',monospace;margin:5px 0;color:#18335a}.addr{font:12px Consolas,'Courier New',monospace;color:#48648f}.pointer{display:flex;align-items:center;gap:10px;background:#f1f8ff;border:1px solid #cbdcf5;border-radius:12px;padding:12px;margin-top:15px}.pointer strong{font:700 17px Consolas,'Courier New',monospace;color:#164a96}.pointer .arrow{font-size:23px;color:#347bdd}.pointer .target{font-size:13px;color:#334a6a}.kv{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.kv div{background:#f3f6fb;border-radius:7px;padding:8px 10px;min-width:115px}.kv small{display:block;color:var(--muted)}.kv b{font:700 16px Consolas,'Courier New',monospace}.console{margin-top:12px;background:#15243c;color:#d4ffe6;border-radius:9px;padding:10px 13px;font:16px Consolas,monospace;min-height:44px}.msg{margin-top:14px;padding:12px 15px;background:#f5f7fb;border:1px solid #e0e7f0;border-radius:11px;min-height:82px}.controls{margin-top:13px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}.btn{padding:10px 14px;border-radius:9px;background:#fff;border:1px solid #c9d7e8;color:#173153;font-weight:600;cursor:pointer}.btn.primary{background:#2563eb;border-color:#2563eb;color:white}.btn:disabled{opacity:.44;cursor:not-allowed}.count{margin-left:auto;color:var(--muted);font-size:13px}.foot{margin-top:14px;font-size:13px;color:#52637a}button:focus-visible{outline:3px solid #80b5ff;outline-offset:2px}@media(max-width:730px){body{padding:12px}.columns{grid-template-columns:1fr}.top h1{font-size:21px}.code,.visual{min-height:auto}.cell .val{font-size:24px}.count{width:100%;text-align:right}}
+</style>
+</head>
+<body><main class="wrap">
+<div class="eyebrow">Урок №4 · C++ · Память</div>
+<header class="top"><div><h1>Указатель и элементы массива</h1><p>Выбирай сценарий и смотри, как индекс и смещение указателя приводят к нужному элементу.</p></div></header>
+<div class="note">Учебные адреса условные (A, A+4, A+8). Для иллюстрации предполагаем, что <b>sizeof(int) = 4 байта</b>. Это не показ реальных адресов компьютера.</div>
+<section class="panel"><div class="caption">Сценарий</div><div class="tabrow" id="tabs" role="tablist" aria-label="Сценарии">
+<button class="tab" data-mode="read" role="tab" aria-selected="true">1. Читаем элементы</button>
+<button class="tab" data-mode="offset" role="tab" aria-selected="false">2. ptr + 1 и ++ptr</button>
+<button class="tab" data-mode="write" role="tab" aria-selected="false">3. Меняем элемент</button>
+</div></section>
+<section class="panel columns"><div><div class="caption">Пример C++ (подсвечена текущая строка)</div><div id="code" class="code" aria-label="Пример кода"></div></div>
+<div class="visual"><div class="caption">Модель памяти</div><div class="arraytitle">Массив numbers · три соседних элемента</div><div id="cells" class="cells"></div><div class="pointer"><strong>ptr</strong><span class="arrow">→</span><span class="target" id="target">ещё не создан</span></div><div class="kv"><div><small>ptr указывает на</small><b id="ref">—</b></div><div><small>Текущее значение</small><b id="cur">—</b></div></div><div class="caption" style="margin-top:15px">Консоль</div><div id="console" class="console" aria-live="polite">—</div></div></section>
+<section class="panel"><div id="message" class="msg" aria-live="polite"></div><div class="controls"><button id="prev" class="btn">← Назад</button><button id="next" class="btn primary">Дальше →</button><button id="auto" class="btn">▶ Авто</button><button id="reset" class="btn">↻ Сначала</button><div id="count" class="count">Шаг 1</div></div></section>
+<p class="foot"><b>Главное:</b> ptr + 1 вычисляет адрес следующего элемента; *(ptr + 1) обращается к этому элементу. В отличие от ++ptr, выражение ptr + 1 само по себе не меняет ptr. Смещения допустимы только в пределах соответствующего массива (и позиции сразу после конца, которую нельзя разыменовывать).</p>
+</main>
+<script>
+'use strict';
+const cases={
+read:{lines:['int numbers[3] = {10, 20, 30};','int* ptr = numbers;','cout << *ptr << " ";','cout << *(ptr + 1) << " ";','cout << ptr[2];'],steps:[
+{line:0,p:null,hl:-1,v:[10,20,30],out:'',m:'Создаём массив из трёх целых чисел. Они занимают соседние участки памяти.'},
+{line:1,p:0,hl:0,v:[10,20,30],out:'',m:'Имя массива в этом выражении преобразуется в указатель на первый элемент. ptr хранит адрес numbers[0].'},
+{line:2,p:0,hl:0,v:[10,20,30],out:'10 ',m:'*ptr читает первый элемент массива: numbers[0] = 10.'},
+{line:3,p:0,hl:1,v:[10,20,30],out:'10 20 ',m:'ptr + 1 вычисляет адрес второго элемента, а *(ptr + 1) читает 20. Сам ptr всё ещё указывает на numbers[0].'},
+{line:4,p:0,hl:2,v:[10,20,30],out:'10 20 30',m:'ptr[2] — обращение к третьему элементу, эквивалентное *(ptr + 2).'}]},
+offset:{lines:['int numbers[3] = {10, 20, 30};','int* ptr = numbers;','cout << *(ptr + 1) << " ";','cout << *ptr << " ";','++ptr;','cout << *ptr;'],steps:[
+{line:0,p:null,hl:-1,v:[10,20,30],out:'',m:'Создаём массив из трёх элементов.'},
+{line:1,p:0,hl:0,v:[10,20,30],out:'',m:'ptr хранит адрес numbers[0].'},
+{line:2,p:0,hl:1,v:[10,20,30],out:'20 ',m:'Вычисляем ptr + 1, читаем 20. Указатель ptr не изменился: он по-прежнему хранит адрес первого элемента.'},
+{line:3,p:0,hl:0,v:[10,20,30],out:'20 10 ',m:'*ptr всё ещё читает 10: ptr + 1 не записывало новый адрес в ptr.'},
+{line:4,p:1,hl:1,v:[10,20,30],out:'20 10 ',m:'++ptr изменяет сам указатель. Теперь ptr хранит адрес numbers[1].'},
+{line:5,p:1,hl:1,v:[10,20,30],out:'20 10 20',m:'*ptr теперь читает 20 — текущий объект, на который указывает ptr.'}]},
+write:{lines:['int numbers[3] = {10, 20, 30};','int* ptr = numbers;','*(ptr + 1) = 99;','cout << numbers[1] << " ";','cout << ptr[1];'],steps:[
+{line:0,p:null,hl:-1,v:[10,20,30],out:'',m:'Создаём массив из трёх элементов.'},
+{line:1,p:0,hl:0,v:[10,20,30],out:'',m:'ptr указывает на numbers[0].'},
+{line:2,p:0,hl:1,v:[10,99,30],out:'',m:'*(ptr + 1) = 99 меняет второй элемент исходного массива. Указатель ptr при этом не изменяется.'},
+{line:3,p:0,hl:1,v:[10,99,30],out:'99 ',m:'Через индекс numbers[1] видим новое значение 99.'},
+{line:4,p:0,hl:1,v:[10,99,30],out:'99 99',m:'ptr[1] обращается к тому же второму элементу. Обе записи показывают 99.'}]}
+};
+let mode='read',step=0,timer=null;
+const $=id=>document.getElementById(id);
+function render(){const c=cases[mode],s=c.steps[step];$('code').innerHTML=c.lines.map((v,i)=>'<span class="line '+(i===s.line?'active':'')+'"><span class="num">'+(i+1)+'</span>'+escapeHtml(v)+'</span>').join('');$('cells').innerHTML=s.v.map((v,i)=>'<div class="cell '+(i===s.hl?'focus':'')+'"><div class="idx">numbers['+i+']</div><div class="val">'+v+'</div><div class="addr">'+['A','A + 4','A + 8'][i]+'</div></div>').join('');$('ref').textContent=s.p===null?'—':'numbers['+s.p+']';$('cur').textContent=s.p===null?'—':s.v[s.p];$('target').textContent=s.p===null?'ещё не создан':'содержит адрес '+['A','A + 4','A + 8'][s.p];$('console').textContent=s.out||'—';$('message').textContent=s.m;$('count').textContent='Шаг '+(step+1)+' из '+c.steps.length;$('prev').disabled=step===0;$('next').disabled=step===c.steps.length-1;document.querySelectorAll('[data-mode]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.mode===mode)));}
+function escapeHtml(s){return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')}
+function stop(){if(timer!==null){clearInterval(timer);timer=null;}$('auto').textContent='▶ Авто'}
+function changeMode(m){stop();mode=m;step=0;render()}
+document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>changeMode(b.dataset.mode)));
+$('prev').addEventListener('click',()=>{stop();step=Math.max(0,step-1);render()});
+$('next').addEventListener('click',()=>{stop();step=Math.min(cases[mode].steps.length-1,step+1);render()});
+$('reset').addEventListener('click',()=>{stop();step=0;render()});
+$('auto').addEventListener('click',()=>{if(timer!==null){stop();return;}if(step===cases[mode].steps.length-1)step=0;render();$('auto').textContent='Ⅱ Пауза';timer=setInterval(()=>{if(step<cases[mode].steps.length-1){step++;render()}else{stop()}},1500)});
+render();
+</script></body></html>
