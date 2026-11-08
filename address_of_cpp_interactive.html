@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Адрес переменной в C++ — интерактивный разбор</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#172439;background:#f6f9fc;--blue:#2866c4;--ink:#172439;--muted:#54657e;--line:#dce5f0}
+*{box-sizing:border-box}body{margin:0;padding:20px;line-height:1.5}.wrap{max-width:980px;margin:auto}.head{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-bottom:15px}h1{font-size:clamp(20px,3vw,27px);margin:0;color:#113b72}p{margin:4px 0}.sub{color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:15px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:17px;box-shadow:0 4px 14px #263b5910}.card h2{font-size:16px;margin:0 0 12px}.code{background:#142136;color:#e8eef8;border-radius:12px;padding:14px 10px;overflow-x:auto;font:14px/2.15 Consolas,"Courier New",monospace}.line{padding:0 10px;white-space:pre;border-left:3px solid transparent;transition:background .2s}.line.active{background:#294c79;border-left-color:#80d8ff}.line .num{color:#8799b8;display:inline-block;width:24px;user-select:none}.kw{color:#88c8ff}.val{color:#ffc986}.address{color:#b2edc8}.memory{position:relative;background:#f5f9ff;border:1px dashed #8daed9;border-radius:12px;padding:14px;margin-top:6px}.memhead{font-size:12px;color:#4d6181;margin-bottom:7px}.cell{border:2px solid #3071c5;background:#eaf4ff;border-radius:9px;padding:14px;text-align:center;min-height:93px}.cell .value{font-size:26px;font-weight:750;color:#154c91;font-variant-numeric:tabular-nums}.cell .lbl{font-size:13px;color:#4d6181}.pill{display:inline-block;background:#dcecfb;color:#194d85;border-radius:999px;padding:2px 9px;font-size:12px}.output{background:#142136;min-height:90px;border-radius:11px;padding:13px;color:#bfeecf;white-space:pre-wrap;font:16px/1.55 Consolas,monospace}.explain{min-height:68px;background:#eef5fe;border-left:4px solid #3272c6;border-radius:8px;padding:11px 13px;margin-top:14px}.controls{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:14px 0}.btn{border:1px solid #a9bfdd;border-radius:9px;background:white;color:#19436f;padding:10px 13px;font:600 14px system-ui;cursor:pointer}.btn:hover{background:#f1f7ff}.btn:disabled{opacity:.45;cursor:not-allowed}.btn.primary{background:#236bc6;color:white;border-color:#236bc6}.btn.primary:hover{background:#155bb2}.counter{margin-left:auto;color:#50647d;font-size:13px}.warn{color:#566984;font-size:12px;margin-top:10px}.status{font-size:13px;color:#345b8f}.address-note{font-size:12px;color:#6b7990}.dots{display:flex;gap:5px;margin:12px 0}.dot{height:5px;flex:1;border-radius:999px;background:#dce6f1}.dot.on{background:#2874cc}.symbol{display:flex;align-items:center;gap:8px;margin-top:11px;flex-wrap:wrap}.symbol code{padding:4px 8px;background:#e8f1fe;border-radius:7px;font-size:14px}.tag{font-size:13px;color:#527392}.mini{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.mini strong{color:#143e75}@media(max-width:680px){body{padding:10px}.grid{grid-template-columns:1fr}.card{padding:13px}.code{font-size:12px}.counter{margin-left:0}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}}
+</style>
+</head>
+<body><main class="wrap">
+<div class="head"><div><h1>Адрес переменной в C++</h1><p class="sub">Пошагово сравниваем значение <code>number</code> и адрес <code>&amp;number</code>.</p></div><span class="pill">Учебная модель памяти</span></div>
+<div class="grid">
+<section class="card"><h2>Программа C++</h2><div class="code" id="code">
+<div class="line" data-line="1"><span class="num">1</span><span class="kw">int</span> number = <span class="val">10</span>;</div>
+<div class="line" data-line="2"><span class="num">2</span>cout &lt;&lt; number &lt;&lt; '\n';</div>
+<div class="line" data-line="3"><span class="num">3</span>cout &lt;&lt; <span class="address">&amp;number</span> &lt;&lt; '\n';</div>
+<div class="line" data-line="4"><span class="num">4</span>number = <span class="val">25</span>;</div>
+<div class="line" data-line="5"><span class="num">5</span>cout &lt;&lt; number &lt;&lt; '\n';</div>
+<div class="line" data-line="6"><span class="num">6</span>cout &lt;&lt; <span class="address">&amp;number</span> &lt;&lt; '\n';</div>
+</div><div class="symbol"><code>number</code><span class="tag">→ значение</span><code>&amp;number</code><span class="tag">→ адрес</span></div>
+<div class="mini"><strong>Заметь:</strong> после изменения <code>number</code> меняется его значение, а адрес той же переменной в рамках этого примера остаётся прежним.</div>
+</section>
+<section class="card"><h2>Память и результат</h2><div class="memory"><div class="memhead">Условная ячейка памяти переменной <b>number</b></div><div class="cell"><div class="lbl">Адрес (иллюстрация)</div><div class="status" id="addr">—</div><div class="value" id="value">—</div><div class="lbl">Значение</div></div><p class="address-note">Адрес <b>0x1000</b> вымышленный. Настоящий адрес выбирается при выполнении программы.</p></div><h2 style="margin-top:15px">Консоль</h2><div class="output" id="output">Пока пусто</div></section>
+</div>
+<div class="card" style="margin-top:15px"><div class="dots" id="dots"></div><div class="explain" id="explain" aria-live="polite">До выполнения программы значение переменной ещё не показано.</div><div class="controls"><button class="btn" id="prev">← Назад</button><button class="btn primary" id="next">Следующий шаг →</button><button class="btn" id="play">▶ Авто</button><button class="btn" id="reset">↺ Сначала</button><span class="counter" id="step">Шаг 0 из 6</span></div><p class="warn">Модель не исполняет C++-код. Она иллюстрирует последовательность инструкций и различие между значением и адресом.</p></div>
+</main>
+<script>
+const steps=[
+{line:0,value:null,address:'—',output:'',text:'Начало: программа ещё не выполнила инструкции.'},
+{line:1,value:10,address:'0x1000',output:'',text:'Создаётся переменная number со значением 10. Для неё показываем условный адрес 0x1000.'},
+{line:2,value:10,address:'0x1000',output:'10',text:'cout << number выводит значение переменной: 10.'},
+{line:3,value:10,address:'0x1000',output:'10\n0x1000',text:'cout << &number выводит адрес переменной, а не число 10. Адрес здесь условный.'},
+{line:4,value:25,address:'0x1000',output:'10\n0x1000',text:'Инструкция number = 25 изменяет значение переменной. В этой модели её адрес остаётся 0x1000.'},
+{line:5,value:25,address:'0x1000',output:'10\n0x1000\n25',text:'Снова выводим number: теперь это 25.'},
+{line:6,value:25,address:'0x1000',output:'10\n0x1000\n25\n0x1000',text:'Снова выводим &number: адрес всё той же переменной. Адрес не обязан совпадать с 0x1000 на реальном компьютере.'}
+];
+let step=0,timer=null;
+const $=id=>document.getElementById(id);
+$('dots').innerHTML=steps.slice(1).map((_,i)=>`<span class="dot" id="d${i+1}"></span>`).join('');
+function paint(){const s=steps[step];document.querySelectorAll('.line').forEach(el=>el.classList.toggle('active',Number(el.dataset.line)===s.line));$('addr').textContent=s.address;$('value').textContent=s.value===null?'—':String(s.value);$('output').textContent=s.output||'Пока пусто';$('explain').textContent=s.text;$('step').textContent=`Шаг ${step} из 6`;$('prev').disabled=step===0;$('next').disabled=step===6;document.querySelectorAll('.dot').forEach((el,i)=>el.classList.toggle('on',i<step))}
+function stop(){if(timer!==null){clearInterval(timer);timer=null}$('play').textContent='▶ Авто'}
+$('prev').onclick=()=>{stop();step=Math.max(0,step-1);paint()};
+$('next').onclick=()=>{stop();step=Math.min(6,step+1);paint()};
+$('reset').onclick=()=>{stop();step=0;paint()};
+$('play').onclick=()=>{if(timer!==null){stop();return}if(step>=6)step=0;paint();$('play').textContent='⏸ Пауза';timer=setInterval(()=>{if(step<6){step++;paint()}else stop()},1600)};
+paint();
+</script></body></html>
