@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Указатель C++ — значение и адрес</title>
+<style>
+:root{font-family:Inter,"Segoe UI",Arial,sans-serif;color:#192b43;background:#f5f8fc;--blue:#2563eb;--mint:#0f766e;--line:#d8e4f2;--muted:#506580}
+*{box-sizing:border-box}body{margin:0;padding:18px;background:linear-gradient(135deg,#f7faff,#eff6ff)}.container{max-width:1040px;margin:auto}
+h1{font-size:clamp(22px,3vw,30px);margin:0 0 8px;color:#13325a}p{line-height:1.45}header p{color:#516780;margin:0 0 16px;font-size:15px}
+.panel{border:1px solid var(--line);background:white;box-shadow:0 6px 22px #17385b0b;border-radius:17px;padding:18px;margin:12px 0}
+.sectionTitle{font-size:16px;font-weight:700;margin:0 0 12px;color:#163b65}.code{font:15px/1.9 Consolas,"Courier New",monospace;color:#dce9fb;background:#19273d;border-radius:12px;padding:14px 17px;overflow:auto;white-space:nowrap}
+.line{padding:1px 6px;border-left:4px solid transparent;border-radius:5px;transition:background .18s}.line.on{background:#284d75;border-left-color:#6ee7b7}.kw{color:#94c9ff}.lit{color:#fda4af}.ptr{color:#a7f3d0}.dim{color:#9cb2cd}
+.memory{display:grid;grid-template-columns:minmax(0,1fr) 116px minmax(0,1fr);align-items:center;gap:8px;margin-top:4px}
+.cell{min-height:155px;border-radius:14px;padding:17px;border:2px solid #d3e4f7;background:#f1f7ff;display:flex;flex-direction:column;gap:6px;text-align:center;transition:all .2s}.cell.pointer{background:#edfcf8;border-color:#bde7da}.cell.active{border-color:#2b68ee;box-shadow:0 0 0 3px #2563eb17}.cell .name{font-size:20px;font-weight:750}.cell .addr{font:13px Consolas,monospace;color:#586e88}.cell .value{font:700 clamp(22px,3vw,29px) Consolas,monospace;margin:8px 0 2px}.cell .desc{font-size:12px;color:#526981}.arrow{text-align:center;font-weight:750;color:#0f766e;font-size:19px;display:flex;flex-direction:column;align-items:center;gap:6px}.arrow .bar{font-size:34px;line-height:1}.arrow .small{font-size:11px;color:#607590;font-weight:400}
+.status{font-size:14px;background:#f1f5fa;border-radius:12px;padding:15px;min-height:76px;line-height:1.5}.status strong{color:#1d4c77}.console{font:16px/1.5 Consolas,"Courier New",monospace;white-space:pre-wrap;color:#2d415a;background:#f4f7fc;border-radius:10px;min-height:68px;padding:12px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.controls button{background:#2563eb;color:white;border:1px solid #2563eb;border-radius:9px;padding:11px 15px;font:600 14px inherit;cursor:pointer}.controls button.secondary{background:white;color:#194678;border:1px solid #bfd2eb}.controls button:disabled{opacity:.43;cursor:default}button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}.counter{margin-left:auto;color:#526981;font-size:13px}.legend{font-size:13px;color:#64748b;margin-top:10px}.warn{background:#fffbeb;border:1px solid #f2dc9e;padding:12px;border-radius:10px;color:#854d0e;font-size:13px}
+@media(max-width:620px){body{padding:9px}.panel{padding:12px}.memory{grid-template-columns:1fr;gap:5px}.arrow{transform:rotate(90deg);margin:7px 0}.cell{min-height:125px}.controls button{flex-grow:1}.counter{margin:8px auto 0;flex-basis:100%;text-align:center}.code{font-size:12px;padding:10px}.line{padding-left:2px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="container">
+<header><h1>Как работает указатель в C++</h1><p>Пошагово исследуй разницу между <code>number</code>, <code>&amp;number</code>, <code>ptr</code> и <code>*ptr</code>.</p></header>
+<section class="panel" aria-labelledby="hcode"><h2 id="hcode" class="sectionTitle">Пример программы</h2><div class="code" aria-label="Пример C++">
+<div class="line" data-code="0"><span class="kw">int</span> number = <span class="lit">10</span>;</div>
+<div class="line" data-code="1"><span class="kw">int*</span> ptr = &amp;number;</div>
+<div class="line" data-code="2">cout &lt;&lt; number &lt;&lt; '\n';</div>
+<div class="line" data-code="3">cout &lt;&lt; &amp;number &lt;&lt; '\n';</div>
+<div class="line" data-code="4">cout &lt;&lt; ptr &lt;&lt; '\n';</div>
+<div class="line" data-code="5">cout &lt;&lt; *ptr &lt;&lt; '\n';</div>
+</div></section>
+<section class="panel"><h2 class="sectionTitle">Модель памяти (условные адреса)</h2>
+<div class="memory">
+<div class="cell" id="ptrCell"><div class="name">ptr</div><div class="addr">Адрес самого ptr: 0x2000</div><div class="value" id="ptrVal">ещё не создан</div><div class="desc">Значение указателя — адрес другого объекта</div></div>
+<div class="arrow" aria-label="Указатель направлен от ptr к number"><span class="small" id="arrowLabel">нет связи</span><span class="bar">→</span></div>
+<div class="cell" id="numberCell"><div class="name">number</div><div class="addr">Адрес: 0x1000</div><div class="value">10</div><div class="desc">Обычная переменная типа int</div></div>
+</div><div class="legend">Адреса <code>0x1000</code> и <code>0x2000</code> придуманы для учебной модели. В действительной программе они будут другими.</div>
+</section>
+<section class="panel"><h2 class="sectionTitle">Что происходит на текущем шаге?</h2><div id="status" class="status" role="status" aria-live="polite"></div></section>
+<section class="panel"><h2 class="sectionTitle">Вывод в консоль</h2><div id="console" class="console" aria-label="Вывод программы">Пока пусто</div></section>
+<section class="panel"><div class="controls"><button class="secondary" id="prev">← Назад</button><button id="next">Дальше →</button><button class="secondary" id="auto">▶ Авто</button><button class="secondary" id="reset">↻ Сначала</button><span class="counter" id="counter"></span></div></section>
+<div class="warn"><strong>Важно:</strong> <code>ptr</code> хранит адрес переменной <code>number</code>, а <code>*ptr</code> позволяет получить её значение. Указатель тоже является отдельным объектом и имеет собственный адрес. Операцию изменения значения через указатель разберём позже.</div>
+</div>
+<script>
+'use strict';
+const states = [
+  {line:0, linked:false, focus:'number', output:[], title:'Создаём обычную переменную', desc:'int number = 10; — переменная number содержит число 10. В учебной модели она находится по адресу 0x1000.'},
+  {line:1, linked:true, focus:'ptr', output:[], title:'Создаём указатель', desc:'int* ptr = &number; — указатель ptr получает адрес number (0x1000). Сам ptr — отдельная переменная, в модели его собственный адрес 0x2000.'},
+  {line:2, linked:true, focus:'number', output:['10'], title:'Читаем number', desc:'Выражение number означает значение переменной — 10. В консоль добавляется число 10.'},
+  {line:3, linked:true, focus:'number', output:['10','0x1000'], title:'Получаем адрес &number', desc:'Оператор & возвращает адрес переменной number. Здесь это условное значение 0x1000.'},
+  {line:4, linked:true, focus:'ptr', output:['10','0x1000','0x1000'], title:'Читаем ptr', desc:'В указателе ptr хранится тот же адрес 0x1000. Поэтому &number и ptr показывают один адрес.'},
+  {line:5, linked:true, focus:'number', output:['10','0x1000','0x1000','10'], title:'Разыменовываем *ptr', desc:'Выражение *ptr обращается к объекту, на который указывает ptr, и получает его значение — 10.'},
+  {line:null, linked:true, focus:'', output:['10','0x1000','0x1000','10'], title:'Программа завершилась', desc:'Первая и четвёртая строки вывода — значения. Вторая и третья — один и тот же адрес. Адрес самого ptr был бы получен отдельным выражением &ptr.'}
+];
+let index=0;let timer=null;
+const $=s=>document.querySelector(s);
+function render(){const s=states[index]; document.querySelectorAll('[data-code]').forEach(el=>el.classList.toggle('on',Number(el.dataset.code)===s.line)); $('#ptrVal').textContent=s.linked?'0x1000':'ещё не создан';$('#arrowLabel').textContent=s.linked?'указывает на number':'нет связи';$('#ptrCell').classList.toggle('active',s.focus==='ptr');$('#numberCell').classList.toggle('active',s.focus==='number');$('#status').innerHTML='<strong>'+s.title+'</strong><div>'+s.desc+'</div>';$('#console').textContent=s.output.length?s.output.join('\n'):'Пока пусто';$('#counter').textContent='Шаг '+(index+1)+' из '+states.length;$('#prev').disabled=index===0;$('#next').disabled=index===states.length-1;}
+function stop(){if(timer){clearInterval(timer);timer=null;}$('#auto').textContent='▶ Авто';}
+$('#prev').addEventListener('click',()=>{stop();index=Math.max(0,index-1);render();});
+$('#next').addEventListener('click',()=>{stop();index=Math.min(states.length-1,index+1);render();});
+$('#reset').addEventListener('click',()=>{stop();index=0;render();});
+$('#auto').addEventListener('click',()=>{if(timer){stop();return;}if(index===states.length-1)index=0;render();$('#auto').textContent='⏸ Пауза';timer=setInterval(()=>{if(index<states.length-1){index++;render();}else{stop();}},1500);});
+render();
+</script>
+</body></html>
