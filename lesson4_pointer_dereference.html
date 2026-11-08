@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>C++: разыменование и изменение значения через указатель</title>
+<style>
+:root{font-family:Arial,'Segoe UI',sans-serif;color:#142339;background:#f6f9fd;font-size:16px}
+*{box-sizing:border-box}body{margin:0;padding:20px}main{max-width:1000px;margin:auto}
+h1{font-size:clamp(22px,3.5vw,31px);margin:0 0 8px;color:#173965}p{line-height:1.5;margin:7px 0}
+.lead{color:#52647e;margin-bottom:18px}.panel{background:#fff;border:1px solid #dbe4ef;box-shadow:0 2px 12px #1739650c;border-radius:15px;padding:17px;margin:12px 0}
+.section-title{font-size:17px;font-weight:700;margin-bottom:12px;color:#173965}
+.codebox{background:#18283e;color:#e8f0ff;border-radius:11px;overflow:hidden;font:15px/1.7 Consolas,'Courier New',monospace}
+.codebox .head{background:#2a3b54;font:13px Arial,sans-serif;padding:9px 15px;color:#d4e4ff}
+.line{white-space:pre-wrap;padding:1px 15px;border-left:4px solid transparent;transition:background .18s;border-radius:0}
+.line.active{background:#294c72;border-left-color:#5cc1fe}.line .kw{color:#85c7ff}.line .val{color:#ffd479}.line .fn{color:#9fe3ca}.line .comment{color:#9cb0c8}
+.arrangement{display:grid;grid-template-columns:minmax(0,1fr) 100px minmax(0,1fr);align-items:center;gap:15px}
+.cell{border:2px solid #aac6e7;border-radius:12px;padding:14px;text-align:center;min-height:139px;background:#f1f7ff}
+.cell.ptr{border-color:#7ed5c5;background:#f0fcf8}.name{font-weight:700;font-size:18px;margin-bottom:5px}.addr{color:#61738a;font:13px Consolas,'Courier New',monospace;margin-bottom:10px}
+.value{font:700 27px Consolas,'Courier New',monospace;color:#185a97}.sub{color:#64748b;font-size:13px;margin-top:7px}
+.arrow{text-align:center;color:#227b9a;font-size:38px;line-height:1}.arrow small{font-size:11px;display:block;line-height:1.4;font-weight:600}
+.console{background:#17253a;color:#dbfbe5;padding:15px;border-radius:9px;min-height:94px;font:18px/1.5 Consolas,'Courier New',monospace;white-space:pre-wrap}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}.stats .field{background:#f0f5fa;border-radius:9px;padding:12px}.muted{color:#5d7089;font-size:13px}
+.msg{padding:13px 14px;background:#eaf3ff;color:#194573;border:1px solid #cadef5;border-radius:10px;min-height:66px;line-height:1.5}
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}button{padding:10px 14px;border:1px solid #c4d4e8;background:white;color:#174474;border-radius:9px;font-weight:700;cursor:pointer;font-size:14px}
+button.primary{background:#246dc1;color:#fff;border-color:#246dc1}button:hover:not(:disabled){filter:brightness(.97)}button:disabled{opacity:.42;cursor:not-allowed}
+#progress{margin-left:auto;color:#64748b;font-size:13px}.notice{border-left:4px solid #15a48b;background:#f1faf7;padding:12px 15px;border-radius:8px;color:#195b52;font-size:14px}
+@media(max-width:600px){body{padding:12px}.arrangement{grid-template-columns:1fr;gap:6px}.arrow{transform:rotate(90deg);font-size:26px}.arrow small{display:none}.cell{min-height:110px}.stats{grid-template-columns:1fr}.line{font-size:13px;padding-left:8px}}
+</style>
+</head>
+<body><main>
+<h1>Как указатель изменяет переменную</h1>
+<p class="lead">C++ · Разыменование и запись через <strong style="font-family:'Courier New',monospace">*ptr</strong>. Нажимай «Дальше», чтобы проследить каждый шаг.</p>
+<div class="panel"><div class="section-title">Фрагмент программы</div>
+<div class="codebox"><div class="head">C++ · активная инструкция подсвечивается</div>
+<div class="line" id="l1"><span class="kw">int</span> number = <span class="val">10</span>;</div>
+<div class="line" id="l2"><span class="kw">int</span>* ptr = &amp;number;</div>
+<div class="line" id="l3"><span class="fn">cout</span> &lt;&lt; number &lt;&lt; '\n';</div>
+<div class="line" id="l4">*ptr = <span class="val">25</span>;</div>
+<div class="line" id="l5"><span class="fn">cout</span> &lt;&lt; number &lt;&lt; '\n';</div>
+<div class="line" id="l6">number = <span class="val">40</span>;</div>
+<div class="line" id="l7"><span class="fn">cout</span> &lt;&lt; *ptr &lt;&lt; '\n';</div>
+</div></div>
+<div class="panel"><div class="section-title">Модель памяти: два объекта, одна связь</div>
+<div class="arrangement">
+<div class="cell ptr"><div class="name">ptr</div><div class="addr">условный адрес самого ptr: 0x2000</div><div class="value" id="pointer-val">—</div><div class="sub">значение указателя: адрес number</div></div>
+<div class="arrow" id="pointer-arrow">→<small>указывает на</small></div>
+<div class="cell"><div class="name">number</div><div class="addr">условный адрес: 0x1000</div><div class="value" id="number-val">—</div><div class="sub">значение целочисленной переменной</div></div>
+</div>
+<div class="stats" style="margin-top:12px"><div class="field"><div class="muted">ptr — что хранится в указателе</div><strong id="ptr-report">Указатель ещё не объявлен</strong></div><div class="field"><div class="muted">*ptr — значение объекта по адресу</div><strong id="deref-report">Пока недоступно</strong></div></div>
+</div>
+<div class="panel"><div class="section-title">Вывод в консоль</div><div class="console" id="console">—</div></div>
+<div class="msg" id="message" aria-live="polite">Нажми «Дальше», чтобы создать переменную number.</div>
+<div class="controls"><button id="prev" type="button">← Назад</button><button id="next" class="primary" type="button">Дальше →</button><button id="auto" type="button">▶ Авто</button><button id="reset" type="button">↺ Сначала</button><span id="progress"></span></div>
+<div class="notice" style="margin-top:15px"><strong>Запомни:</strong> запись <span style="font-family:'Courier New',monospace">*ptr = 25;</span> меняет объект number, а не адрес внутри ptr. Запись <span style="font-family:'Courier New',monospace">number = 40;</span> тоже меняет тот же объект. Поэтому последующее чтение через <span style="font-family:'Courier New',monospace">*ptr</span> возвращает 40.</div>
+<p class="muted" style="margin-top:12px">Адреса 0x1000 и 0x2000 используются только для иллюстрации. Это не настоящие адреса процесса.</p>
+</main>
+<script>
+'use strict';
+const states = [
+ {line:0,n:null,p:false,out:'',msg:'Начало: данных пока нет. Нажми «Дальше», чтобы создать переменную number.'},
+ {line:1,n:10,p:false,out:'',msg:'Создали number со значением 10. У этого объекта есть собственный адрес.'},
+ {line:2,n:10,p:true,out:'',msg:'Указатель ptr получил адрес number. В ptr записан адрес 0x1000, но само значение number равно 10.'},
+ {line:3,n:10,p:true,out:'10',msg:'cout << number читает значение number и выводит 10.'},
+ {line:4,n:25,p:true,out:'10',msg:'*ptr = 25 записывает 25 в объект, на который указывает ptr. Это тот же number. Адрес в ptr не изменился.'},
+ {line:5,n:25,p:true,out:'10\n25',msg:'При прямом чтении number видим новое значение 25.'},
+ {line:6,n:40,p:true,out:'10\n25',msg:'number = 40 изменяет тот же объект напрямую. Указатель по-прежнему хранит его адрес.'},
+ {line:7,n:40,p:true,out:'10\n25\n40',msg:'*ptr читает текущее значение number — 40. Вывод завершён.'}
+];
+let idx=0, interval=null;
+function elt(id){return document.getElementById(id)}
+function render(){
+ const s=states[idx];
+ for(let i=1;i<=7;i++)elt('l'+i).classList.toggle('active',i===s.line);
+ elt('number-val').textContent=s.n===null?'ещё нет':String(s.n);
+ elt('pointer-val').textContent=s.p?'0x1000':'ещё нет';
+ elt('pointer-arrow').style.opacity=s.p?'1':'0.2';
+ elt('ptr-report').textContent=s.p?'0x1000 (адрес number)':'Указатель ещё не объявлен';
+ elt('deref-report').textContent=s.p?String(s.n):'Пока недоступно';
+ elt('console').textContent=s.out||'—';
+ elt('message').textContent=s.msg;
+ elt('prev').disabled=idx===0;
+ elt('next').disabled=idx===states.length-1;
+ elt('progress').textContent=`Шаг ${idx} из ${states.length-1}`;
+}
+function stop(){if(interval!==null){clearInterval(interval);interval=null}elt('auto').textContent='▶ Авто'}
+elt('prev').onclick=()=>{stop();idx=Math.max(0,idx-1);render()};
+elt('next').onclick=()=>{stop();idx=Math.min(states.length-1,idx+1);render()};
+elt('reset').onclick=()=>{stop();idx=0;render()};
+elt('auto').onclick=()=>{
+ if(interval!==null){stop();return}
+ if(idx===states.length-1)idx=0;
+ render();elt('auto').textContent='❚❚ Пауза';
+ interval=setInterval(()=>{if(idx<states.length-1){idx++;render()}else{stop()}},1400);
+};
+render();
+</script>
+</body></html>
